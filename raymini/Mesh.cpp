@@ -10,7 +10,12 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <GL/glut.h>
+#define MACOS 1
+#ifdef MACOS
+	#include <GLUT/glut.h>
+#else
+	#include <GL/glut.h>	
+#endif
 
 using namespace std;
 
