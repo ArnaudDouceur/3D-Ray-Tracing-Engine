@@ -1,3 +1,5 @@
+.DS_Store
 .moc
+*.swp
 .obj
 raymini.app
