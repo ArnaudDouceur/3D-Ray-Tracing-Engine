@@ -7,6 +7,8 @@
 
 #include "Ray.h"
 
+#define EPSILON 0.000001
+
 using namespace std;
 
 static const unsigned int NUMDIM = 3, RIGHT = 0, LEFT = 1, MIDDLE = 2;
@@ -60,4 +62,30 @@ bool Ray::intersect (const BoundingBox & bbox, Vec3Df & intersectionPoint) const
             intersectionPoint[i] = candidatePlane[i];
         }
     return (true);			
+}
+
+// Moller Trumbore algorithm
+bool Ray::intersect (const Triangle & triangle, Vec3Df & intersectionPoint, unsigned short object_id) const {
+    const std::vector<Vertex> & vertices = Scene::getInstance()->getObjects()[object_id].getMesh().getVertices();
+    Vec3Df v1 = vertices[triangle.getVertex(0)].getPos();
+    Vec3Df v2 = vertices[triangle.getVertex(1)].getPos();
+    Vec3Df v3 = vertices[triangle.getVertex(2)].getPos();
+	Vec3Df e1 = v2-v1;
+	Vec3Df e2 = v3-v1;
+	Vec3Df w = Vec3Df::crossProduct(direction,e2);
+	float det = Vec3Df::dotProduct(e1,w);
+	if(det > -EPSILON && det < EPSILON)
+		return false;
+	float invDet = 1.0/det;
+	Vec3Df d = origin - v1;
+	float x = Vec3Df::dotProduct(d,w)*invDet;
+	if(x < 0.0 || x > 1.0)
+		return false;
+	Vec3Df q = Vec3Df::crossProduct(d,e1);
+	float y = Vec3Df::dotProduct(direction, q)*invDet;
+	if(y < 0.0 || x + y > 1.0)
+		return false;	
+	float t = Vec3Df::dotProduct(e2, q)*invDet;
+    intersectionPoint = origin + t*direction + x*e1 + y*e2;
+    return true;
 }
