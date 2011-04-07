@@ -50,8 +50,15 @@ QImage RayTracer::render (const Vec3Df & camPos,
     const Vec3Df rangeBb = maxBb-minBb;
     std::vector<Object> & objects = scene->getObjects();
     
+    unsigned int progress = 0;
     for (unsigned int i = 0; i < screenWidth; i++)
         for (unsigned int j = 0; j < screenHeight; j++) {
+            unsigned int current_progress = i*j*100/(screenWidth*screenHeight);
+            if(current_progress > progress) {
+                progress = current_progress;
+                cerr << progress << '%' << endl;
+            }
+            
             float tanX = tan (fieldOfView);
             float tanY = tanX/aspectRatio;
             Vec3Df stepX = (float (i) - screenWidth/2.f)/screenWidth * tanX * rightVector;
