@@ -25,7 +25,7 @@ void Scene::destroyInstance () {
 }
 
 Scene::Scene () {
-    buildDefaultScene (true);
+    buildDefaultScene (false);
     updateBoundingBox ();
 }
 

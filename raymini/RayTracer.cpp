@@ -8,6 +8,7 @@
 #include "RayTracer.h"
 #include "Ray.h"
 #include "Scene.h"
+#include "iostream.h"
 
 static RayTracer * instance = NULL;
 
@@ -47,6 +48,7 @@ QImage RayTracer::render (const Vec3Df & camPos,
     const Vec3Df & minBb = bbox.getMin ();
     const Vec3Df & maxBb = bbox.getMax ();
     const Vec3Df rangeBb = maxBb-minBb;
+    std::vector<Object> & objects = scene->getObjects();
     
     for (unsigned int i = 0; i < screenWidth; i++)
         for (unsigned int j = 0; j < screenHeight; j++) {
@@ -59,13 +61,19 @@ QImage RayTracer::render (const Vec3Df & camPos,
             dir.normalize ();
             Ray ray (camPos, dir);
             Vec3Df intersectionPoint;
-            bool hasIntersection = ray.intersect (bbox, intersectionPoint);
-            Vec3Df c (backgroundColor);
-            if (hasIntersection)
-                c = 255.f * ((intersectionPoint - minBb) / rangeBb);
-            image.setPixel (i, ((screenHeight-1)-j), qRgb (clamp (c[0], 0, 255),
-                                                       clamp (c[1], 0, 255),
-                                                       clamp (c[2], 0, 255)));
+            
+            for(unsigned int k = 0; k < objects.size(); k++) {
+                const std::vector<Triangle> & triangles = objects[k].getMesh().getTriangles();
+                for(unsigned int l=0; l < triangles.size(); l++) {
+                    bool hasIntersection = ray.intersect (triangles[l], intersectionPoint, k);
+                    Vec3Df c (backgroundColor);
+                    if (hasIntersection)
+                        c = 255.f * ((intersectionPoint - minBb) / rangeBb);
+                    image.setPixel (i, ((screenHeight-1)-j), qRgb (clamp (c[0], 0, 255),
+                                                               clamp (c[1], 0, 255),
+                                                               clamp (c[2], 0, 255)));
+                }
+            } 
         }
     return image;
 }
