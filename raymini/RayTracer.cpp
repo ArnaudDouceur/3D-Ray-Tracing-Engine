@@ -9,6 +9,8 @@
 #include "Ray.h"
 #include "Scene.h"
 #include <iostream.h>
+#include <pthread.h>
+#define NB_THREADS 8
 
 static RayTracer * instance = NULL;
 
@@ -30,32 +32,53 @@ inline int clamp (float f, int inf, int sup) {
     return (v < inf ? inf : (v > sup ? sup : v));
 }
 
-QImage RayTracer::render (const Vec3Df & camPos,
-                          const Vec3Df & direction,
-                          const Vec3Df & upVector,
-                          const Vec3Df & rightVector,
-                          float fieldOfView,
-                          float aspectRatio,
-                          unsigned int screenWidth,
-                          unsigned int screenHeight) {
-    QImage image (QSize (screenWidth, screenHeight), QImage::Format_RGB888);
+struct thread_data{
+    const Vec3Df * camPos;
+    const Vec3Df * direction;
+    const Vec3Df * upVector;
+    const Vec3Df * rightVector;
+    float fieldOfView;
+    float aspectRatio;
+    unsigned int screenWidth;
+    unsigned int screenHeight;
+    QImage* image;
+    Scene* scene;
+    const BoundingBox * bbox;
+    const Vec3Df * minBb;
+    const Vec3Df * maxBb;
+    const Vec3Df * rangeBb;
+    std::vector<Object> * objects;
+    Vec3Df * backgroundColor;
+    unsigned short working_zone;
+};
+
+void *RenderingThread(void *data) {
     
-    Scene * scene = Scene::getInstance ();
-    const BoundingBox & bbox = scene->getBoundingBox ();
-    const Vec3Df & minBb = bbox.getMin ();
-    const Vec3Df & maxBb = bbox.getMax ();
-    const Vec3Df rangeBb = maxBb-minBb;
-    std::vector<Object> & objects = scene->getObjects();
+    struct thread_data *d = (struct thread_data *) data;
     
-    unsigned int progress = 0;
-    for (unsigned int i = 0; i < screenWidth; i++) {
+    const Vec3Df & camPos = *d->camPos;         
+    const Vec3Df & direction = *d->direction;      
+    const Vec3Df & upVector = *d->upVector;       
+    const Vec3Df & rightVector = *d->rightVector;    
+    float fieldOfView = d->fieldOfView;             
+    float aspectRatio = d->aspectRatio;             
+    unsigned int screenWidth = d->screenWidth;      
+    unsigned int screenHeight = d->screenHeight;     
+    QImage* image = d->image;                 
+    Scene* scene = d->scene;                  
+    const BoundingBox & bbox = *d->bbox;      
+    const Vec3Df & minBb = *d->minBb;          
+    const Vec3Df & maxBb = *d->maxBb;      
+    const Vec3Df rangeBb = *d->rangeBb;    
+    std::vector<Object> & objects =  *d->objects; 
+    Vec3Df backgroundColor = *d->backgroundColor;
+    unsigned short working_zone = d->working_zone;
+    
+    unsigned int threadStep = screenWidth/NB_THREADS;
+    
+    for (unsigned int i = working_zone*threadStep; i < (working_zone+1)*threadStep; i++) {
         for (unsigned int j = 0; j < screenHeight; j++) {
-            unsigned int current_progress = i*j*100/(screenWidth*screenHeight);
-            if(current_progress > progress) {
-                progress = current_progress;
-                cerr << progress << '%' << endl;
-            }
-            
+        
             float tanX = tan (fieldOfView);
             float tanY = tanX/aspectRatio;
             Vec3Df stepX = (float (i) - screenWidth/2.f)/screenWidth * tanX * rightVector;
@@ -83,14 +106,60 @@ QImage RayTracer::render (const Vec3Df & camPos,
                     }
                 }
             }
-            
+        
             Vec3Df c (backgroundColor);
             if (hasIntersection) 
                 c = 255.f * ((intersectionPoint - minBb) / rangeBb);
-            image.setPixel (i, ((screenHeight-1)-j), qRgb (clamp (c[0], 0, 255),
+            image->setPixel (i, ((screenHeight-1)-j), qRgb (clamp (c[0], 0, 255),
                                                        clamp (c[1], 0, 255),
                                                        clamp (c[2], 0, 255)));
         }
     }
+    return NULL;
+}
+
+QImage RayTracer::render (const Vec3Df & camPos,
+                          const Vec3Df & direction,
+                          const Vec3Df & upVector,
+                          const Vec3Df & rightVector,
+                          float fieldOfView,
+                          float aspectRatio,
+                          unsigned int screenWidth,
+                          unsigned int screenHeight) {
+    QImage image (QSize (screenWidth, screenHeight), QImage::Format_RGB888);
+    
+    Scene * scene = Scene::getInstance ();
+    const BoundingBox & bbox = scene->getBoundingBox ();
+    const Vec3Df & minBb = bbox.getMin ();
+    const Vec3Df & maxBb = bbox.getMax ();
+    const Vec3Df rangeBb = maxBb-minBb;
+    std::vector<Object> & objects = scene->getObjects();
+    
+    thread_data thread_data_array[NB_THREADS];
+    pthread_t threads[NB_THREADS];
+    
+    for (unsigned int i = 0; i < NB_THREADS; i++) {
+        thread_data_array[i].camPos = &camPos;
+        thread_data_array[i].direction = &direction;
+        thread_data_array[i].upVector = &upVector;
+        thread_data_array[i].rightVector = &rightVector;
+        thread_data_array[i].fieldOfView = fieldOfView;
+        thread_data_array[i].aspectRatio = aspectRatio;
+        thread_data_array[i].screenWidth = screenWidth;
+        thread_data_array[i].screenHeight = screenHeight;
+        thread_data_array[i].image = &image;
+        thread_data_array[i].scene = scene;
+        thread_data_array[i].bbox = &bbox;
+        thread_data_array[i].minBb = &minBb;
+        thread_data_array[i].maxBb = &maxBb;
+        thread_data_array[i].rangeBb = &rangeBb;
+        thread_data_array[i].objects = &objects;
+        thread_data_array[i].backgroundColor = &backgroundColor;
+        thread_data_array[i].working_zone = i;
+        pthread_create(&threads[i], NULL, RenderingThread, (void *) &thread_data_array[i]);        
+    }
+    void *status;
+    for (unsigned short i = 0; i < NB_THREADS; i++)
+        pthread_join(threads[i], &status);
     return image;
 }
