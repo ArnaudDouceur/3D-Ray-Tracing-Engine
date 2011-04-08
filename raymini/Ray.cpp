@@ -64,8 +64,9 @@ bool Ray::intersect (const BoundingBox & bbox, Vec3Df & intersectionPoint) const
     return (true);			
 }
 
-// Moller Trumbore algorithm
-bool Ray::intersect (const Triangle & triangle, const std::vector<Vertex> & vertices, Vec3Df & intersectionPoint) const {
+// Moller Trumbore algorithm, MT97.pdf
+// origin + t*direction = (1-u-v)*v1 + u*v2 + v*v3 = intersection point
+bool Ray::intersect (const Triangle & triangle, const std::vector<Vertex> & vertices, Vec3Df & intersectionPoint, float & t, float & u, float & v) const {
     Vec3Df v1 = vertices[triangle.getVertex(0)].getPos();
     Vec3Df v2 = vertices[triangle.getVertex(1)].getPos();
     Vec3Df v3 = vertices[triangle.getVertex(2)].getPos();
@@ -77,14 +78,14 @@ bool Ray::intersect (const Triangle & triangle, const std::vector<Vertex> & vert
 		return false;
 	float invDet = 1.0/det;
 	Vec3Df d = origin - v1;
-	float x = Vec3Df::dotProduct(d,w)*invDet;
-	if(x < 0.0 || x > 1.0)
+	u = Vec3Df::dotProduct(d,w)*invDet;
+	if(u < 0.0 || u > 1.0)
 		return false;
 	Vec3Df q = Vec3Df::crossProduct(d,e1);
-	float y = Vec3Df::dotProduct(direction, q)*invDet;
-	if(y < 0.0 || x + y > 1.0)
+	v = Vec3Df::dotProduct(direction, q)*invDet;
+	if(v < 0.0 || u + v > 1.0)
 		return false;
-    float t = Vec3Df::dotProduct(e2, q)*invDet;
-    intersectionPoint = origin + t*direction + x*e1 + y*e2;
+    t = Vec3Df::dotProduct(e2, q)*invDet;
+    intersectionPoint = origin + t*direction;
 	return true;
 }

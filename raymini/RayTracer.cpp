@@ -66,17 +66,22 @@ QImage RayTracer::render (const Vec3Df & camPos,
             Ray ray (camPos, dir);
             Vec3Df intersectionPoint;
             bool hasIntersection = false;
-            
-            // This is a draft. The intersectionPoint we use is the first one we found
-            // Maybe we should select the closest one if they are several
+            float closestIntersectionDistance;
+
             for(unsigned int k = 0; k < objects.size(); k++) {
                 const std::vector<Triangle> & triangles = objects[k].getMesh().getTriangles();
                 const std::vector<Vertex> & vertices = objects[k].getMesh().getVertices();
                 for(unsigned int l=0; l < triangles.size(); l++) {
-                    hasIntersection = ray.intersect (triangles[l], vertices, intersectionPoint);
-                    if(hasIntersection) break;
+                    float t,u,v;
+                    Vec3Df currentIntersectionPoint;
+                    if(ray.intersect(triangles[l], vertices, currentIntersectionPoint, t, u ,v)) {
+                        if(not hasIntersection or t < closestIntersectionDistance) {
+                            closestIntersectionDistance = t;
+                            intersectionPoint = currentIntersectionPoint;
+                        } 
+                        hasIntersection = true;                                                
+                    }
                 }
-                if(hasIntersection) break;
             }
             
             Vec3Df c (backgroundColor);

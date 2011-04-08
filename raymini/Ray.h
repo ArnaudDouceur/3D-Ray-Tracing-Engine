@@ -28,7 +28,7 @@ public:
     inline Vec3Df & getDirection () { return direction; }
 
     bool intersect (const BoundingBox & bbox, Vec3Df & intersectionPoint) const;
-    bool intersect (const Triangle & triangle, const std::vector<Vertex> & vertices, Vec3Df & intersectionPoint) const;
+    bool intersect (const Triangle & triangle, const std::vector<Vertex> & vertices, Vec3Df & intersectionPoint, float & t, float & u, float & v) const;
     
 private:
     Vec3Df origin;
