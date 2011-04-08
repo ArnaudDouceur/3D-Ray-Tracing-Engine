@@ -8,7 +8,7 @@
 #include "RayTracer.h"
 #include "Ray.h"
 #include "Scene.h"
-#include "iostream.h"
+#include <iostream.h>
 
 static RayTracer * instance = NULL;
 
@@ -71,11 +71,13 @@ QImage RayTracer::render (const Vec3Df & camPos,
             
             for(unsigned int k = 0; k < objects.size(); k++) {
                 const std::vector<Triangle> & triangles = objects[k].getMesh().getTriangles();
+                const std::vector<Vertex> & vertices = objects[k].getMesh().getVertices();
                 for(unsigned int l=0; l < triangles.size(); l++) {
-                    bool hasIntersection = ray.intersect (triangles[l], intersectionPoint, k);
+                    bool hasIntersection = ray.intersect (triangles[l], vertices, intersectionPoint);
                     Vec3Df c (backgroundColor);
                     if (hasIntersection)
-                        c = 255.f * ((intersectionPoint - minBb) / rangeBb);
+                        c = Vec3Df(255.f, 0.f, 0.f);
+                        //c = 255.f * ((intersectionPoint - minBb) / rangeBb);
                     image.setPixel (i, ((screenHeight-1)-j), qRgb (clamp (c[0], 0, 255),
                                                                clamp (c[1], 0, 255),
                                                                clamp (c[2], 0, 255)));

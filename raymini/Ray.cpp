@@ -65,8 +65,7 @@ bool Ray::intersect (const BoundingBox & bbox, Vec3Df & intersectionPoint) const
 }
 
 // Moller Trumbore algorithm
-bool Ray::intersect (const Triangle & triangle, Vec3Df & intersectionPoint, unsigned short object_id) const {
-    const std::vector<Vertex> & vertices = Scene::getInstance()->getObjects()[object_id].getMesh().getVertices();
+bool Ray::intersect (const Triangle & triangle, const std::vector<Vertex> & vertices, Vec3Df & intersectionPoint) const {
     Vec3Df v1 = vertices[triangle.getVertex(0)].getPos();
     Vec3Df v2 = vertices[triangle.getVertex(1)].getPos();
     Vec3Df v3 = vertices[triangle.getVertex(2)].getPos();
@@ -84,8 +83,8 @@ bool Ray::intersect (const Triangle & triangle, Vec3Df & intersectionPoint, unsi
 	Vec3Df q = Vec3Df::crossProduct(d,e1);
 	float y = Vec3Df::dotProduct(direction, q)*invDet;
 	if(y < 0.0 || x + y > 1.0)
-		return false;	
-	float t = Vec3Df::dotProduct(e2, q)*invDet;
+		return false;
+    float t = Vec3Df::dotProduct(e2, q)*invDet;
     intersectionPoint = origin + t*direction + x*e1 + y*e2;
-    return true;
+	return true;
 }
