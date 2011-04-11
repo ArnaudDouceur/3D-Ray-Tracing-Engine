@@ -1,49 +1,108 @@
-#include "KDNode.h"
+#include "KdNode.h"
+
+float cosAngleLimit = 0.9;
 
 using namespace std;
 
-template<class T_Cell> KDNode<T_Cell>::KDNode() {
-	init();
+KdNode::KdNode()
+{
+    splitAxis = 0; // X-axis by default
+    splitAxisPosition = 0.f;
+    parent = NULL;
+    left = NULL;
+    right = NULL;
 }
 
-template<class T_Cell> void KDNode<T_Cell>::init() {
-	position = 0.f;
-	axis = 0;
-	content = NULL;
-	childA = NULL;
-	childB = NULL;
+KdNode::~KdNode()
+{
+    if (this != NULL)
+        delete this;
+    if (left != NULL)
+            delete left;
+    if (right != NULL)
+            delete right;
 }
 
-template<class T_Cell> KDNode<T_Cell>::~KDNode() {
-	if(content != NULL)
-		delete content;
-	if(childA != NULL)
-		delete childA;
-	if(childB != NULL)
-		delete childB;
+void KdNode::setAngleNormalsLimit(float angleDeg) {
+	// atan(1) / 45 = (Pi/4) / 45 = 2.PI/360
+	cosAngleLimit = cos(angleDeg * atan(1.) / 45.);
 }
 
-template<class T_Cell> void KDNode<T_Cell>::build(const vector<Vertex>& V) {
-	Vec3Df BBmin, BBmax;
-	Mesh::getBoundingBox(V, BBmin, BBmax);
-	build(V, BBmin, BBmax);
+bool KdNode::splittable(const vector<Vertex> &V) const
+{
+    Vec3Df n(0.,0.,0.);
+	vector<Vertex>::size_type k;
+
+	// Normals' mean
+	for(k=0; k<V.size(); ++k)
+		n += V[k].getNormal();
+	n.normalize();
+
+	// Comparing offset to threshold
+	for(k=0; k<V.size(); ++k)
+		if(Vec3Df::dotProduct(n, V[k].getNormal()) < cosAngleLimit)
+			return true;
+	return false;
+
 }
 
 
-// Building the KDTree
-template<class T_Cell> void KDNode<T_Cell>::build(vector<Vertex> V, const Vec3Df& BBmin, const Vec3Df& BBmax) {
-	if(!isSplittable(V))
-	{
-		cout << "Create leaf with " << V.size() << " points" << endl;
-		content = buildNewCell(V);
-	}
+// Comparison functions
+bool KdNode::compareX(const Vertex& a, const Vertex& b) 
+{
+	return (a.getPos()[0] < b.getPos()[0]);
+}
+
+bool KdNode::compareY(const Vertex& a, const Vertex& b) 
+{
+	return (a.getPos()[1] < b.getPos()[1]);
+}
+
+bool KdNode::compareZ(const Vertex& a, const Vertex& b) 
+{
+	return (a.getPos()[2] < b.getPos()[2]);
+}
+
+vector<Vertex>::size_type KdNode::splitBB(vector<Vertex> &V, const Vec3Df &BBsize)
+{
+    vector<Vertex>::size_type rankL, rankR, rank;
+
+	// Main axis
+	splitAxis = (BBsize[1] > BBsize[0]) ? 1 : 0;
+	splitAxis = (BBsize[2] > BBsize[splitAxis] ? 2 : splitAxis);
+
+	// Sort points according to chosen Axis (X, Y or Z)
+	if(splitAxis == 0)
+		sort(V.begin(), V.end(), KdNode::compareX);
+	else if(splitAxis == 1)
+		sort(V.begin(), V.end(), KdNode::compareY);
 	else
-	{
-	    // Build recursively
+		sort(V.begin(), V.end(), KdNode::compareZ);
+
+	// Seperate so that no point is above
+	for(rankL = V.size() / 2 ; rankL>0 && V[rankL].getPos()[splitAxis]==V[rankL-1].getPos()[splitAxis]; rankL--);
+	for(rankR = V.size() / 2 ; rankR<V.size() && V[rankR].getPos()[splitAxis]==V[rankR-1].getPos()[splitAxis]; rankR++);
+	rank = (V.size() - rankR >= rankL) ? rankR : rankL;
+
+	splitAxisPosition = (double) (V[rank-1].getPos()[splitAxis] + V[rank].getPos()[splitAxis]) / 2.;
+	return rank;
+}
+
+void KdNode::build(vector<Vertex> &V, const Vec3Df &BBmin, const Vec3Df &BBmax)
+{
+     if(!splittable(V))
+    {
+        //TODO end building ?
+        cout << "Kd-Tree is built" << endl;
+        return;
+    }
+    else
+    {
+        // Build recursively
 		vector<Vertex> Va, Vb;
 		vector<Vertex>::size_type median;
-
-		// Split array
+        
+        // Split V into Va and Vb
 		median = splitBB(V, BBmax - BBmin);
 		Va.resize(median);
 		copy(V.begin(), V.begin() + median, Va.begin());
@@ -54,81 +113,40 @@ template<class T_Cell> void KDNode<T_Cell>::build(vector<Vertex> V, const Vec3Df
 		// Intermediate BB
 		Vec3Df BBmaxA = BBmax;
 		Vec3Df BBminB = BBmin;
-		BBmaxA[axis] = Va[Va.size()-1].getPos()[axis];
-		BBminB[axis] = Vb[0].getPos()[axis];
+		BBmaxA[splitAxis] = Va[Va.size()-1].getPos()[splitAxis];
+		BBminB[splitAxis] = Vb[0].getPos()[splitAxis];
 
 		// Recursif call
-		childA = newKDNode();
-		childA->build(Va, BBmin, BBmaxA);
-		childB = newKDNode();
-		childB->build(Vb, BBminB, BBmax);
+        // TODO
+		left = new KdNode();
+		left->build(Va, BBmin, BBmaxA);
+		right = new KdNode();
+		right->build(Vb, BBminB, BBmax);
 	}
+
 }
 
+void KdNode::buildKdTree(Scene& scene)
+{
+    vector<Vertex> V; // Array containing all vertices
+    int size = 0;
+    vector<Object> &objects = scene.getObjects();
+    const BoundingBox &Bbox = scene.getBoundingBox();
 
-template <class T_Cell> T_Cell* KDNode<T_Cell>::getContent(const Vec3Df& pt, unsigned int maxDepth) const {
-	if(maxDepth == 1)
-		return content;
-	else
-	{
-		if(pt[axis] < position)
-			return (childA == NULL) ? content : childA->getContent(pt, maxDepth-1);
-		else if(pt[axis] > position)
-			return (childB == NULL) ? content : childB->getContent(pt, maxDepth-1);
-		 else if(childA == NULL && childB == NULL)
-		 	return content;
-		 else
-		 	throw std::invalid_argument("Search through kd-tree : points on the separation !\nNot yet implemented\n");
-	}
+    // Fill V
+    for(vector<Object>::size_type i=0; i<objects.size(); ++i)
+    {
+        vector<Vertex> Vtmp = objects[i].getMesh().getVertices();
+        
+        for(vector<Vertex>::size_type j=0; j<Vtmp.size(); ++j)
+        {
+            size += Vtmp.size();
+            V.resize(size);
+            copy(Vtmp.begin(), Vtmp.end(), V.end());
+        }
+    }
+    
+    build(V, Bbox.getMin(), Bbox.getMax());
+   
 }
 
-template <class T_Cell> unsigned long KDNode<T_Cell>::countContentNodes(bool onlyLeaves) {
-	unsigned long nb = 0;
-	if(content != NULL)
-		if(!onlyLeaves || (childA==NULL && childB==NULL))
-			++nb;
-	if(childA != NULL)
-		nb += childA->countContentNodes(onlyLeaves);
-	if(childB != NULL)
-		nb += childB->countContentNodes(onlyLeaves);
-	return nb;
-}
-
-// Seperate points in two
-template<class T_Cell> vector<Vertex>::size_type KDNode<T_Cell>::splitBB(vector<Vertex>& V, const Vec3Df& BBsize) {
-	vector<Vertex>::size_type rankL, rankR, rank;
-
-	// Main axis
-	axis = (BBsize[1] > BBsize[0]) ? 1 : 0;
-	axis = (BBsize[2] > BBsize[axis] ? 2 : axis);
-
-	// Sort points
-	if(axis == 0)
-		sort(V.begin(), V.end(), KDNode<T_Cell>::compareX);
-	else if(axis == 1)
-		sort(V.begin(), V.end(), KDNode<T_Cell>::compareY);
-	else
-		sort(V.begin(), V.end(), KDNode<T_Cell>::compareZ);
-
-	// Seperate so that no point is above
-	for(rankL = V.size() / 2 ; rankL>0 && V[rankL].getPos()[axis]==V[rankL-1].getPos()[axis] ; rankL--);
-	for(rankR = V.size() / 2 ; rankR<V.size() && V[rankR].getPos()[axis]==V[rankR-1].getPos()[axis] ; rankR++);
-	rank = (V.size() - rankR >= rankL) ? rankR : rankL;
-
-	position = (double) (V[rank-1].getPos()[axis] + V[rank].getPos()[axis]) / 2.;
-	return rank;
-}
-
-
-// Comparison functions
-template<class T_Cell> bool KDNode<T_Cell>::compareX(const Vertex& a, const Vertex& b) {
-	return (a.getPos()[0] < b.getPos()[0]);
-}
-
-template<class T_Cell> bool KDNode<T_Cell>::compareY(const Vertex& a, const Vertex& b) {
-	return (a.getPos()[1] < b.getPos()[1]);
-}
-
-template<class T_Cell> bool KDNode<T_Cell>::compareZ(const Vertex& a, const Vertex& b) {
-	return (a.getPos()[2] < b.getPos()[2]);
-}

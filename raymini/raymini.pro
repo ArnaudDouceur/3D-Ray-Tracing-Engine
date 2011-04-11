@@ -9,10 +9,7 @@ HEADERS = Window.h \
           Triangle.h \
           Mesh.h \
           BoundingBox.h \
-          VertexCell.h \
-          KDNode.h \
-          VertexNode.h \
-          VertexKDTree.h \
+          KdNode.h \
           Material.h \
           Object.h \
           Light.h \
@@ -27,10 +24,7 @@ SOURCES = Window.cpp \
           Triangle.cpp \
           Mesh.cpp \
           BoundingBox.cpp \
-          VertexCell.cpp \
-          KDNode.cpp \
-          VertexNode.cpp \
-          VertexKDTree.cpp \
+          KdNode.cpp \
           Material.cpp \
           Object.cpp \
           Light.cpp \

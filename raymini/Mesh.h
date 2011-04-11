@@ -47,7 +47,6 @@ public:
     void renderGL (bool flat) const;
     
     void loadOFF (const std::string & filename);
-    static void getBoundingBox(const std::vector<Vertex>& points, Vec3Df& minBB, Vec3Df& maxBB);
   
     class Exception {
     private: 

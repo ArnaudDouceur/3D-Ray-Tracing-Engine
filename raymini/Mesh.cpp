@@ -214,22 +214,6 @@ void Mesh::loadOFF (const std::string & filename) {
     recomputeSmoothVertexNormals (0);
 }
 
-void Mesh::getBoundingBox (const vector<Vertex>& points, Vec3Df& minBB, Vec3Df& maxBB) 
-{
-	unsigned int i;
-	minBB = maxBB = points[0].getPos();
-
-	// Search for extrema
-	for(vector<Vec3Df>::size_type k=1; k<points.size(); ++k)
-		for(i=0; i<3; ++i)
-		{
-			if(points[k].getPos()[i] < minBB[i])
-				minBB[i] = points[k].getPos()[i];
-			else if(points[k].getPos()[i] > maxBB[i])
-				maxBB[i] = points[k].getPos()[i];
-		}
-}
-
 void Mesh::buildFromPoints(const vector<Vec3Df>& points, const vector<Triangle>& t) {
 	vertices.resize(points.size());
 	for(unsigned long k=0; k<points.size(); ++k)
