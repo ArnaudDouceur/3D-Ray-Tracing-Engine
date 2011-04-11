@@ -1,5 +1,5 @@
-#ifndef KDTREE_H
-#define KDTREE_H
+#ifndef KDNODE_H
+#define KDNODE_H
 
 
 #include <vector>
@@ -9,6 +9,7 @@
 #include "Vertex.h"
 #include "Vec3D.h"
 #include "Mesh.h"
+#include "VertexCell.h"
 
 
 template<class T_Cell> class KDNode {
@@ -18,13 +19,13 @@ public:
 	double position;
 	// Content of this node (only for a leaf)
 	T_Cell *content;
-	// Children (for non-leaf nodes)i
+	// Children (for non-leaf nodes)
 	KDNode<T_Cell> *childA, *childB;
 
     /**
      * Constructeurs and destroyers
      */
-	virtual void init();
+	void init();
 	KDNode();
 	virtual ~KDNode();
 
@@ -36,7 +37,7 @@ public:
     /**
      * Search function to find point pt
      */
-	T_Cell* getContent(const Vec3Df& pt, unsigned int maxDepth = 0) const;
+	virtual T_Cell* getContent(const Vec3Df& pt, unsigned int maxDepth = 0) const;
 
     /**
      * Count the number of nodes with content.
@@ -67,4 +68,7 @@ private:
 	KDNode(const KDNode&);
     KDNode operator=(const KDNode&);
 };
-#endif /* KDTREE_H */
+
+#include "KDNode.cpp"
+
+#endif /* KDNODE_H */

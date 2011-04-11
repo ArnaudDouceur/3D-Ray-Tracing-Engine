@@ -229,3 +229,11 @@ void Mesh::getBoundingBox (const vector<Vertex>& points, Vec3Df& minBB, Vec3Df& 
 				maxBB[i] = points[k].getPos()[i];
 		}
 }
+
+void Mesh::buildFromPoints(const vector<Vec3Df>& points, const vector<Triangle>& t) {
+	vertices.resize(points.size());
+	for(unsigned long k=0; k<points.size(); ++k)
+		vertices[k].setPos(points[k]);
+	triangles = t;
+	recomputeSmoothVertexNormals(0);
+}

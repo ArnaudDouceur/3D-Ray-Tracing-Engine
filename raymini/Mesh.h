@@ -32,6 +32,7 @@ public:
     const std::vector<Vertex> & getVertices () const { return vertices; }
     std::vector<Triangle> & getTriangles () { return triangles; }
     const std::vector<Triangle> & getTriangles () const { return triangles; }
+    void buildFromPoints(const std::vector<Vec3Df>& points, const std::vector<Triangle>& t);
     void clear ();
     void clearGeometry ();
     void clearTopology ();
@@ -46,7 +47,7 @@ public:
     void renderGL (bool flat) const;
     
     void loadOFF (const std::string & filename);
-    void getBoundingBox(const std::vector<Vertex>& points, Vec3Df& minBB, Vec3Df& maxBB);
+    static void getBoundingBox(const std::vector<Vertex>& points, Vec3Df& minBB, Vec3Df& maxBB);
   
     class Exception {
     private: 

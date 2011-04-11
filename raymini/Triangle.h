@@ -23,6 +23,11 @@ public:
     inline unsigned int getVertex (unsigned int i) const { return v[i]; }
     inline void setVertex (unsigned int i, unsigned int vertex) { v[i] = vertex; }
     inline bool contains (unsigned int vertex) const { return (v[0] == vertex || v[1] == vertex || v[2] == vertex); }
+    inline bool isRealTriangle() {
+		// True if all three vertices are distinct
+        return ((getVertex(0) != getVertex(1)) && (getVertex(1) != getVertex(2)) && (getVertex(2) != getVertex(0)));
+	}
+
   
 protected:
     inline void init (unsigned int v0, unsigned int v1, unsigned int v2) {
