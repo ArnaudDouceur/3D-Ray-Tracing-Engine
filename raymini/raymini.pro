@@ -9,6 +9,7 @@ HEADERS = Window.h \
           Triangle.h \
           Mesh.h \
           BoundingBox.h \
+          KDNode.h \
           Material.h \
           Object.h \
           Light.h \
@@ -23,6 +24,7 @@ SOURCES = Window.cpp \
           Triangle.cpp \
           Mesh.cpp \
           BoundingBox.cpp \
+          KDNode.cpp \
           Material.cpp \
           Object.cpp \
           Light.cpp \
