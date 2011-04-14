@@ -92,8 +92,13 @@ void *RenderingThread(void *data) {
     std::vector<Light> lights = scene->getLights();
     
     unsigned int threadStep = screenWidth/NB_THREADS;
+    unsigned int max_i;
+    if(working_zone == NB_THREADS-1)
+        max_i = screenWidth;
+    else
+        max_i = (working_zone+1)*threadStep;
     
-    for (unsigned int i = working_zone*threadStep; i < (working_zone+1)*threadStep; i++) {
+    for (unsigned int i = working_zone*threadStep; i < max_i; i++) {
         for (unsigned int j = 0; j < screenHeight; j++) {
         
             float tanX = tan (fieldOfView);
@@ -136,11 +141,11 @@ void *RenderingThread(void *data) {
             if (hasIntersection) {
                 for(unsigned int k = 0; k < lights.size(); k++) {
                     // TODO : How to use light color ? So far we assume light is white
-                    Vec3Df omegaI = (closestIntersection.p-lights[k].getPos());
+                    Vec3Df omegaI = lights[k].getPos() - closestIntersection.p;
                     omegaI.normalize();
                     Vec3Df n = (1-closestIntersection.u-closestIntersection.v)*closestIntersection.n1;
                     n += closestIntersection.u*closestIntersection.n2 + closestIntersection.v*closestIntersection.n3;
-                    c = RayTracer::brdfPhong(omegaI, ray.getDirection(), n, objects[closestIntersection.object_id].getMaterial());
+                    c = 255.f*RayTracer::brdfPhong(omegaI, -ray.getDirection(), n, objects[closestIntersection.object_id].getMaterial());
                 }
             }
             image->setPixel (i, ((screenHeight-1)-j), qRgb (clamp (c[0], 0, 255),
