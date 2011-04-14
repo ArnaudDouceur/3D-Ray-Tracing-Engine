@@ -13,6 +13,7 @@
 #include <QImage>
 
 #include "Vec3D.h"
+#include "Material.h"
 
 class RayTracer {
 public:
@@ -21,6 +22,8 @@ public:
 
     inline const Vec3Df & getBackgroundColor () const { return backgroundColor;}
     inline void setBackgroundColor (const Vec3Df & c) { backgroundColor = c; }
+    
+    static inline Vec3Df brdfPhong(const Vec3Df &, const Vec3Df &, const Vec3Df &, const Material &);
     
     QImage render (const Vec3Df & camPos,
                    const Vec3Df & viewDirection,

@@ -32,6 +32,11 @@ inline int clamp (float f, int inf, int sup) {
     return (v < inf ? inf : (v > sup ? sup : v));
 }
 
+Vec3Df RayTracer::brdfPhong(const Vec3Df &omegaI, const Vec3Df &omega0, const Vec3Df &n, const Material &material) {
+	Vec3Df R = n*Vec3Df::dotProduct(omegaI,n)*2-omegaI;
+	return (material.getDiffuse()*Vec3Df::dotProduct(n,omegaI) + material.getSpecular()*Vec3Df::dotProduct(R,omega0))*material.getColor();
+}
+
 struct thread_data{
     const Vec3Df * camPos;
     const Vec3Df * direction;
@@ -50,6 +55,17 @@ struct thread_data{
     std::vector<Object> * objects;
     Vec3Df * backgroundColor;
     unsigned short working_zone;
+};
+
+struct IntersectionStruct {
+    Vec3Df p;
+    float t;
+    float u;
+    float v;
+    Vec3Df n1;
+    Vec3Df n2;
+    Vec3Df n3;
+    unsigned short object_id;
 };
 
 void *RenderingThread(void *data) {
@@ -73,6 +89,7 @@ void *RenderingThread(void *data) {
     std::vector<Object> & objects =  *d->objects; 
     Vec3Df backgroundColor = *d->backgroundColor;
     unsigned short working_zone = d->working_zone;
+    std::vector<Light> lights = scene->getLights();
     
     unsigned int threadStep = screenWidth/NB_THREADS;
     
@@ -87,29 +104,45 @@ void *RenderingThread(void *data) {
             Vec3Df dir = direction + step;
             dir.normalize ();
             Ray ray (camPos, dir);
-            Vec3Df intersectionPoint;
+            struct IntersectionStruct intersection;
+            struct IntersectionStruct closestIntersection;
             bool hasIntersection = false;
-            float closestIntersectionDistance;
 
             for(unsigned int k = 0; k < objects.size(); k++) {
+                
                 const std::vector<Triangle> & triangles = objects[k].getMesh().getTriangles();
                 const std::vector<Vertex> & vertices = objects[k].getMesh().getVertices();
+                
                 for(unsigned int l=0; l < triangles.size(); l++) {
-                    float t,u,v;
-                    Vec3Df currentIntersectionPoint;
-                    if(ray.intersect(triangles[l], vertices, currentIntersectionPoint, t, u ,v)) {
-                        if(not hasIntersection or t < closestIntersectionDistance) {
-                            closestIntersectionDistance = t;
-                            intersectionPoint = currentIntersectionPoint;
-                        } 
-                        hasIntersection = true;                                                
+                    
+                    const Vertex &v1 = vertices[triangles[l].getVertex(0)];
+                    const Vertex &v2 = vertices[triangles[l].getVertex(1)];
+                    const Vertex &v3 = vertices[triangles[l].getVertex(2)];                    
+                    
+                    if(ray.intersect(v1.getPos(), v2.getPos(), v3.getPos(), intersection.p, intersection.t, intersection.u , intersection.v)) {
+                        if(not hasIntersection or intersection.t < closestIntersection.t) {
+                            closestIntersection = intersection;
+                            closestIntersection.object_id = k;
+                            closestIntersection.n1 = v1.getNormal();
+                            closestIntersection.n2 = v2.getNormal();
+                            closestIntersection.n3 = v3.getNormal();
+                            hasIntersection = true;                        
+                        }
                     }
                 }
             }
         
             Vec3Df c (backgroundColor);
-            if (hasIntersection) 
-                c = 255.f * ((intersectionPoint - minBb) / rangeBb);
+            if (hasIntersection) {
+                for(unsigned int k = 0; k < lights.size(); k++) {
+                    // TODO : How to use light color ? So far we assume light is white
+                    Vec3Df omegaI = (closestIntersection.p-lights[k].getPos());
+                    omegaI.normalize();
+                    Vec3Df n = (1-closestIntersection.u-closestIntersection.v)*closestIntersection.n1;
+                    n += closestIntersection.u*closestIntersection.n2 + closestIntersection.v*closestIntersection.n3;
+                    c = RayTracer::brdfPhong(omegaI, ray.getDirection(), n, objects[closestIntersection.object_id].getMaterial());
+                }
+            }
             image->setPixel (i, ((screenHeight-1)-j), qRgb (clamp (c[0], 0, 255),
                                                        clamp (c[1], 0, 255),
                                                        clamp (c[2], 0, 255)));
