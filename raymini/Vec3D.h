@@ -117,6 +117,7 @@ public:
     inline T& operator[] (int Index) {
         return (p[Index]);
     };
+
     inline const T& operator[] (int Index) const {
         return (p[Index]);
     };
@@ -294,7 +295,7 @@ protected:
     T p[3];
 };
 
-template <class T> inline Vec3D<T> swap (Vec3D<T> & P, Vec3D<T> & Q) {
+template <class T> inline void swap (Vec3D<T> & P, Vec3D<T> & Q) {
     Vec3D<T> tmp = P;
     P = Q;
     Q = tmp;
