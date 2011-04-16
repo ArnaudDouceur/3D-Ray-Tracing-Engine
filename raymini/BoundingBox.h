@@ -135,6 +135,15 @@ public:
     }
     bool intersectRay (const Vec3Df & origin, const Vec3Df & direction, Vec3Df & intersection) const;
 
+    inline float getArea() const
+    {
+    	const float width = getWidth();
+		const float height = getHeight();
+		const float length = getLength();
+		return 2.0f * (width * height + width * length + height * length);
+
+    }
+
 private:
     inline float getWHL (unsigned int i) const {
         return (maxBb[i] - minBb[i]);
