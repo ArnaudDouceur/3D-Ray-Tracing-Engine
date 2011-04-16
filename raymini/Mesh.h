@@ -14,24 +14,30 @@
 #include "Vertex.h"
 #include "Triangle.h"
 #include "Edge.h"
+#include "KdTree.h"
 
 class Mesh {
+    friend class Ray;
 public:
     inline Mesh () {} 
     inline Mesh (const std::vector<Vertex> & v) 
-        : vertices (v) {}
+        : vertices (v), tree(NULL) {}
     inline Mesh (const std::vector<Vertex> & v, 
                  const std::vector<Triangle> & t) 
-        : vertices (v), triangles (t)  {}
+        : vertices (v), triangles (t), tree(NULL)  {}
     inline Mesh (const Mesh & mesh) 
         : vertices (mesh.vertices), 
-          triangles (mesh.triangles) {}
+          triangles (mesh.triangles),
+          tree (mesh.tree) {}
         
     inline virtual ~Mesh () {}
     std::vector<Vertex> & getVertices () { return vertices; }
     const std::vector<Vertex> & getVertices () const { return vertices; }
     std::vector<Triangle> & getTriangles () { return triangles; }
     const std::vector<Triangle> & getTriangles () const { return triangles; }
+    const KdTree *getKdTree() const { return tree; }
+    KdTree *getKdTree() { return tree; }
+    void setKdTree(KdTree *t) { tree = t; }
     void buildFromPoints(const std::vector<Vec3Df>& points, const std::vector<Triangle>& t);
     void clear ();
     void clearGeometry ();
@@ -60,6 +66,7 @@ public:
 private:
     std::vector<Vertex> vertices;
     std::vector<Triangle> triangles;
+    KdTree *tree;
 };
 
 #endif // MESH_H
