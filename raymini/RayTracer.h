@@ -11,11 +11,14 @@
 #include <iostream>
 #include <vector>
 #include <QImage>
+#include <QTime>
 
 #include "Vec3D.h"
 #include "Material.h"
+#include "Scene.h"
 
-class RayTracer {
+class RayTracer : public QObject {
+    Q_OBJECT
 public:
     static RayTracer * getInstance ();
     static void destroyInstance ();
@@ -33,6 +36,8 @@ public:
                    float aspectRatio,
                    unsigned int screenWidth,
                    unsigned int screenHeight);
+signals:
+	void renderDone(QTime time);
     
 protected:
     inline RayTracer () {}

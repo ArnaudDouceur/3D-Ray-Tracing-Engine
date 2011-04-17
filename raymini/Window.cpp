@@ -11,7 +11,6 @@
 #include <QButtonGroup>
 #include <QMenuBar>
 #include <QApplication>
-#include <QLayout>
 #include <QLabel>
 #include <QProgressBar>
 #include <QCheckBox>
@@ -33,6 +32,7 @@
 #include <QFileDialog>
 
 #include "RayTracer.h"
+#include "Scene.h"
 
 using namespace std;
 
@@ -74,9 +74,21 @@ Window::~Window () {
 
 }
 
+void Window::displayTime(QTime time){
+	int length = time.elapsed();
+	int minutes = length / (60*1000);
+	int secondes = (length - (minutes * (60*1000)))/1000;
+	int millisecondes = length - (minutes * (60*1000)) - (secondes*1000);
+	QVariant min = QVariant(minutes);
+	QVariant sec = QVariant(secondes);
+	QVariant milli = QVariant(millisecondes);
+	emit updateTime(min.toString()+" min "+sec.toString()+" s "+milli.toString());
+}
+
 void Window::renderRayImage () {
     qglviewer::Camera * cam = viewer->camera ();
     RayTracer * rayTracer = RayTracer::getInstance ();
+    connect(rayTracer,SIGNAL(renderDone(QTime)),this,SLOT(displayTime(QTime)));
     qglviewer::Vec p = cam->position ();
     qglviewer::Vec d = cam->viewDirection ();
     qglviewer::Vec u = cam->upVector ();
@@ -123,7 +135,7 @@ void Window::about () {
     
     QMessageBox::about (this, 
                         "About This Program", 
-                        "<b>RayMini</b> <br> by <i>Tamy Boubekeur</i>.");
+                        "<b>RayMini</b> <br> by <i>Daniel Ross / Arnaud Douceur</i>.");
 }
 
 void Window::initControlWidget () {
@@ -181,6 +193,12 @@ void Window::initControlWidget () {
     globalLayout->addWidget (quitButton);
 
     layout->addWidget (globalGroupBox);
+
+    QLabel * timeLabel = new QLabel("Time for rendering :") ;
+	timeDisplayLabel = new QLabel("");
+	rayLayout->addWidget(timeLabel);
+	rayLayout->addWidget(timeDisplayLabel);	
+	connect(this,SIGNAL(updateTime(QString)),timeDisplayLabel,SLOT(setText(QString)));
 
     layout->addStretch (0);
 }

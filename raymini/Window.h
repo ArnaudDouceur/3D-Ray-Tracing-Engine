@@ -12,6 +12,7 @@
 #include <QSpinBox>
 #include <QImage>
 #include <QLabel>
+#include <QLayout>
 
 #include <vector>
 #include <string>
@@ -28,11 +29,15 @@ public:
     static void showStatusMessage (const QString & msg);  
     
 public slots :
+    void displayTime(QTime);
     void renderRayImage ();
     void setBGColor ();
     void exportGLImage ();
     void exportRayImage ();
     void about ();
+    
+signals:
+	void updateTime(QString);
     
 private :
     
@@ -45,6 +50,7 @@ private :
     GLViewer * viewer;
     QLabel * imageLabel;
     QImage rayImage;
+    QLabel* timeDisplayLabel;
 };
 
 #endif // WINDOW_H

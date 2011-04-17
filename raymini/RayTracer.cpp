@@ -164,6 +164,10 @@ QImage RayTracer::render (const Vec3Df & camPos,
                           float aspectRatio,
                           unsigned int screenWidth,
                           unsigned int screenHeight) {
+
+    QTime time;
+    time.start();
+
     QImage image (QSize (screenWidth, screenHeight), QImage::Format_RGB888);
     
     Scene * scene = Scene::getInstance ();
@@ -199,5 +203,8 @@ QImage RayTracer::render (const Vec3Df & camPos,
     void *status;
     for (unsigned short i = 0; i < NB_THREADS; i++)
         pthread_join(threads[i], &status);
+    
+    //cout << "Render time = " << time.elapsed() << endl;
+    emit renderDone(time);
     return image;
 }
