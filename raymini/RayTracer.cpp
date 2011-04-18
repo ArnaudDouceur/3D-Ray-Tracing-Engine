@@ -180,6 +180,22 @@ QImage RayTracer::render (const Vec3Df & camPos,
     thread_data thread_data_array[NB_THREADS];
     pthread_t threads[NB_THREADS];
     
+    // TEST
+    
+    const std::vector<Triangle> & triangles = objects[1].getMesh().getTriangles();
+    const std::vector<Vertex> & vertices = objects[1].getMesh().getVertices();
+    
+    cerr << "Number of triangles : " << triangles.size() << endl;
+    
+    KdTree *myTree = new KdTree(bbox, triangles);
+    std::vector<Vec3Df> vertices_pos;
+    for(unsigned int i = 0; i < vertices.size(); i++)
+        vertices_pos.push_back(vertices[i].getPos());
+    myTree->build(vertices_pos);
+    
+    cerr << "=======================================================================================" << endl;
+    // TEST
+    
     for (unsigned int i = 0; i < NB_THREADS; i++) {
         thread_data_array[i].camPos = &camPos;
         thread_data_array[i].direction = &direction;
