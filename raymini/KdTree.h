@@ -25,6 +25,10 @@ public:
         subTree = NULL;
         *this = t;
     }
+        
+    //TODO
+    inline virtual ~KdTree() {}
+    inline void operator=(const KdTree &tree);
 
     void build(std::vector<Vec3Df> &vertices, BoundingBox &vbox, std::vector<int>::iterator start, std::vector<int>::iterator end);
 
@@ -194,10 +198,6 @@ private:
     KdTree *child[2];      // Left and right children
     std::vector<Triangle> triangles; //List of triangles contained in voxel
     KdTree *subTree;       //Another KdTree for extra triangles
-
-    //TODO
-    inline ~KdTree();
-    inline void operator=(const KdTree &tree);
 
 };
 #endif /* KD_TREE */
