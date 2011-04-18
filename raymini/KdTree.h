@@ -21,7 +21,31 @@ public:
 	inline KdTree() {
 		splitAxis = 0;
 	}
-        
+	
+	inline unsigned int getSplitAxis() {
+		return splitAxis;
+	}
+	
+	inline float getSplitPosition() {
+		return splitPosition;
+	}
+       
+	inline BoundingBox getBbox() {
+		return bbox;
+	}
+	
+	inline KdTree* getLeft() {
+		return left;
+	}
+	
+	inline KdTree* getRight() {
+		return right;
+	}
+	
+	inline getTriangles() {
+		return triangles;
+	}
+	
     //TODO
 	//inline virtual ~KdTree();
     //inline void operator=(const KdTree &tree);

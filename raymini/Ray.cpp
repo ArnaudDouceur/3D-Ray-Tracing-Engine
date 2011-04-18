@@ -6,6 +6,7 @@
 // *********************************************************
 
 #include "Ray.h"
+#include "KdTree.h"
 
 #define EPSILON 0.000001
 
@@ -85,4 +86,44 @@ bool Ray::intersect (const Vec3Df & v1, const Vec3Df & v2, const Vec3Df & v3, Ve
     t = Vec3Df::dotProduct(e2, q)*invDet;
     p = origin + t*direction;
 	return true;
+}
+
+bool Ray::intersect (const KdTree & K, const vector<Vertex> V, Triangle & t, Vec3Df & p, float & t, float & u, float & v) const {
+    
+    vector<Triangle> triangles = K.getTriangles();
+    
+    // Non-empty leaf
+    if(!triangles.empty()) {
+        
+        float closest_t;
+        float current_t, current_u, current_v;
+        Vec3Df current_p;
+        bool has_intersection = false;
+        
+        for(unsigned int i = 0; i < triangles.size(); i++) {
+            
+            const Vec3Df & v1 = V[triangles[i].getVertex(0)].getPos();
+            const Vec3Df & v2 = V[triangles[i].getVertex(1)].getPos();
+            const Vec3Df & v3 = V[triangles[i].getVertex(2)].getPos();            
+            
+            if (intersect (v1, v2, v3, current_p, current_t, current_u, current_v)) {
+                if(has_intersection && current_t < t) {
+                    t = current_t;
+                    p = current_p;
+                    u = current_u;
+                    v = current_v;                    
+                }
+                has_intersection = true;
+            }
+        }
+        
+        return has_intersection;
+    }
+    
+    // Empty leaf
+    if(K->getLeft() == NULL)
+        return false
+    
+    
+        
 }
