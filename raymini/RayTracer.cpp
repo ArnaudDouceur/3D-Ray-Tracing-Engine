@@ -10,7 +10,7 @@
 #include "Scene.h"
 #include <iostream.h>
 #include <pthread.h>
-#define NB_THREADS 8
+#define NB_THREADS 1
 
 static RayTracer * instance = NULL;
 

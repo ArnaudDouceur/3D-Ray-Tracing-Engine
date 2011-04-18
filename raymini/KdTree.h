@@ -9,7 +9,7 @@
 #include <vector>
 
 class KdTree {
-    friend class Ray;
+
 public:
     inline KdTree()
     {
