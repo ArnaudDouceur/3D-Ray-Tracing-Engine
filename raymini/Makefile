@@ -12,7 +12,7 @@ CC            = gcc
 CXX           = g++
 DEFINES       = -DQT_NO_DEBUG -DQT_XML_LIB -DQT_OPENGL_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED
 CFLAGS        = -pipe -O2 -O3 -mfpmath=sse -msse2 -arch x86_64 -Xarch_x86_64 -mmacosx-version-min=10.5 -Wall -W $(DEFINES)
-CXXFLAGS      = -pipe -O2 -O3 -mfpmath=sse -msse2 -arch x86_64 -Xarch_x86_64 -mmacosx-version-min=10.5 -Wall -W $(DEFINES)
+CXXFLAGS      = -g -pipe -O2 -O3 -mfpmath=sse -msse2 -arch x86_64 -Xarch_x86_64 -mmacosx-version-min=10.5 -Wall -W $(DEFINES)
 INCPATH       = -I/usr/local/Cellar/qt/4.7.2/mkspecs/macx-g++ -I. -I/usr/local/Cellar/qt/4.7.2/lib/QtCore.framework/Versions/4/Headers -I/usr/local/Cellar/qt/4.7.2/include/QtCore -I/usr/local/Cellar/qt/4.7.2/lib/QtGui.framework/Versions/4/Headers -I/usr/local/Cellar/qt/4.7.2/include/QtGui -I/usr/local/Cellar/qt/4.7.2/lib/QtOpenGL.framework/Versions/4/Headers -I/usr/local/Cellar/qt/4.7.2/include/QtOpenGL -I/usr/local/Cellar/qt/4.7.2/lib/QtXml.framework/Versions/4/Headers -I/usr/local/Cellar/qt/4.7.2/include/QtXml -I/usr/local/Cellar/qt/4.7.2/include -I/usr/include -I/System/Library/Frameworks/OpenGL.framework/Versions/A/Headers -I/System/Library/Frameworks/AGL.framework/Headers -I.moc -F/usr/local/Cellar/qt/4.7.2/lib
 LINK          = g++
 LFLAGS        = -headerpad_max_install_names -arch x86_64 -Xarch_x86_64 -mmacosx-version-min=10.5

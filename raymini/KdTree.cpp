@@ -1,6 +1,6 @@
 #include "KdTree.h"
 using namespace std;
-#define KDNODE_SIZE 12
+#define KDNODE_SIZE 512
 
 // Naive implementation for test purpose
 void KdTree::choosePlane(const std::vector<Vec3Df> &V) {
@@ -16,6 +16,8 @@ void KdTree::build(const std::vector<Vec3Df> &V)
         cout << "Creating a leaf with : " << trianglesCount << endl;
         return;
     }
+    
+    cout << "Recursive calls coming" << endl;
     
     choosePlane(V);
     
@@ -46,6 +48,10 @@ void KdTree::build(const std::vector<Vec3Df> &V)
             left->triangles.push_back(triangles[i]);
             right->triangles.push_back(triangles[i]);
         }
+    }
+    
+    for(unsigned int i = 0; i < triangles.size(); i++) {
+        triangles.erase(triangles.begin()+i);
     }
     
     left->build(V);

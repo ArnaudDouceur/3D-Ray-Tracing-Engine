@@ -194,6 +194,7 @@ QImage RayTracer::render (const Vec3Df & camPos,
     myTree->build(vertices_pos);
     
     cerr << "=======================================================================================" << endl;
+    
     // TEST
     
     for (unsigned int i = 0; i < NB_THREADS; i++) {

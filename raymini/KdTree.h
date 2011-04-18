@@ -15,9 +15,12 @@ public:
     {
 		triangles = t;
 		bbox = b;
+		splitAxis = 0;
     }
 
-	inline KdTree() {}
+	inline KdTree() {
+		splitAxis = 0;
+	}
         
     //TODO
 	//inline virtual ~KdTree();
