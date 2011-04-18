@@ -3,3 +3,6 @@
 *.swp
 .obj
 raymini.app
+*~
+Makefile
+*.xcodeproj
