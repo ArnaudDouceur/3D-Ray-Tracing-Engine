@@ -12,8 +12,7 @@
 #include <vector>
 
 class Triangle {
-    friend class Ray;
-    friend class Mesh;
+
 public:
     inline Triangle () { init (0, 0, 0); }
     inline Triangle (unsigned int v0, unsigned int v1, unsigned int v2) { init (v0, v1, v2); }

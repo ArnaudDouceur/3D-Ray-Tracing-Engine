@@ -17,7 +17,7 @@
 #include "KdTree.h"
 
 class Mesh {
-    friend class Ray;
+
 public:
     inline Mesh () {} 
     inline Mesh (const std::vector<Vertex> & v) 
