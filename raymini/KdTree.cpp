@@ -1,6 +1,6 @@
 #include "KdTree.h"
 using namespace std;
-#define KDNODE_SIZE 512
+#define KDNODE_SIZE 17
 
 // Naive implementation for test purpose
 void KdTree::choosePlane(const std::vector<Vec3Df> &V) {
@@ -16,9 +16,7 @@ void KdTree::build(const std::vector<Vec3Df> &V)
         cout << "Creating a leaf with : " << trianglesCount << endl;
         return;
     }
-    
-    cout << "Recursive calls coming" << endl;
-    
+        
     choosePlane(V);
     
     left = new KdTree();
@@ -31,29 +29,29 @@ void KdTree::build(const std::vector<Vec3Df> &V)
     left->bbox = BoundingBox(bbox.getMin(), bbv);
     bbv = bbox.getMin();
     bbv[splitAxis] = splitPosition;
-    left->bbox = BoundingBox(bbv, bbox.getMax());
+    right->bbox = BoundingBox(bbv, bbox.getMax());
     
     // TODO : whe should avoid third test if first or second is true
-    for(unsigned int i = 0; i < triangles.size(); i++) {
+    
+    while(!triangles.empty()) {
         
-        float v0_position = V[triangles[i].getVertex(0)][splitAxis];
-        float v1_position = V[triangles[i].getVertex(1)][splitAxis];
-        float v2_position = V[triangles[i].getVertex(2)][splitAxis];
+        Triangle t = triangles.back();
+        triangles.pop_back();
+        
+        float v0_position = V[t.getVertex(0)][splitAxis];
+        float v1_position = V[t.getVertex(1)][splitAxis];
+        float v2_position = V[t.getVertex(2)][splitAxis];
         
         if(v0_position < splitPosition || v1_position < splitPosition || v2_position < splitPosition)
-            left->triangles.push_back(triangles[i]);
+            left->triangles.push_back(t);
         if(v0_position > splitPosition || v1_position > splitPosition || v2_position > splitPosition)
-            right->triangles.push_back(triangles[i]);
-        if(v0_position == splitPosition || v1_position == splitPosition || v2_position == splitPosition) {
-            left->triangles.push_back(triangles[i]);
-            right->triangles.push_back(triangles[i]);
+            right->triangles.push_back(t);
+        if(v0_position == splitPosition && v1_position == splitPosition && v2_position == splitPosition) {
+            left->triangles.push_back(t);
+            right->triangles.push_back(t);
         }
     }
     
-    for(unsigned int i = 0; i < triangles.size(); i++) {
-        triangles.erase(triangles.begin()+i);
-    }
-    
     left->build(V);
-    right->build(V);    
+    right->build(V);
 }

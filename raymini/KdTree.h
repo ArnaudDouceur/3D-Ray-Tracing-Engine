@@ -31,7 +31,7 @@ public:
 
 
 private:
-    uint8_t splitAxis;
+    unsigned int splitAxis;
 	float splitPosition;
 	BoundingBox bbox;
     KdTree *left;
