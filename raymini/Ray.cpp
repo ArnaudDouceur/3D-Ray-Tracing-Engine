@@ -118,7 +118,8 @@ bool Ray::intersect (const KdTree & K, const vector<Vertex> V, Triangle & triang
                     t = current_t;
                     p = current_p;
                     u = current_u;
-                    v = current_v;                    
+                    v = current_v;
+                    triangle = triangles[i];                   
                 }
                 has_intersection = true;
             }
