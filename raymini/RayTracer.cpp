@@ -34,8 +34,8 @@ inline int clamp (float f, int inf, int sup) {
 }
 
 Vec3Df RayTracer::brdfPhong(const Vec3Df &omegaI, const Vec3Df &omega0, const Vec3Df &n, const Material &material) {
-	Vec3Df R = n*Vec3Df::dotProduct(omegaI,n)*2-omegaI;
-	return (material.getDiffuse()*Vec3Df::dotProduct(n,omegaI) + material.getSpecular()*Vec3Df::dotProduct(R,omega0))*material.getColor();
+    Vec3Df R = n*Vec3Df::dotProduct(omegaI,n)*2-omegaI;
+    return (material.getDiffuse()*Vec3Df::dotProduct(n,omegaI) + material.getSpecular()*Vec3Df::dotProduct(R,omega0))*material.getColor();
 }
 
 struct thread_data{
@@ -70,9 +70,9 @@ struct IntersectionStruct {
 };
 
 void *RenderingThread(void *data) {
-    
+
     struct thread_data *d = (struct thread_data *) data;
-    
+
     const Vec3Df & camPos = *d->camPos;         
     const Vec3Df & direction = *d->direction;      
     const Vec3Df & upVector = *d->upVector;       
@@ -91,17 +91,37 @@ void *RenderingThread(void *data) {
     Vec3Df backgroundColor = *d->backgroundColor;
     unsigned short working_zone = d->working_zone;
     std::vector<Light> lights = scene->getLights();
-    
+
     unsigned int threadStep = screenWidth/NB_THREADS;
     unsigned int max_i;
     if(working_zone == NB_THREADS-1)
         max_i = screenWidth;
     else
         max_i = (working_zone+1)*threadStep;
-    
+
+
+    cout << "Number of objects : " << objects.size() << endl;
+    for(unsigned int k = 0; k < objects.size(); k++) {
+
+        const std::vector<Triangle> & triangles = objects[k].getMesh().getTriangles();
+        const std::vector<Vertex> & vertices = objects[k].getMesh().getVertices();
+        cerr << "Number of triangles : " << triangles.size() << endl;
+        KdTree * myTree = new KdTree(bbox, triangles);
+        std::vector<Vec3Df> vertices_pos;
+        for(unsigned int i = 0; i < vertices.size(); i++)
+            vertices_pos.push_back(vertices[i].getPos());
+        myTree->build(vertices_pos);
+        objects[k].getMesh().setKdTree(myTree);
+
+        cerr << "=======================================================================================" << endl;
+
+    }
+
+
+
     for (unsigned int i = working_zone*threadStep; i < max_i; i++) {
         for (unsigned int j = 0; j < screenHeight; j++) {
-        
+
             float tanX = tan (fieldOfView);
             float tanY = tanX/aspectRatio;
             Vec3Df stepX = (float (i) - screenWidth/2.f)/screenWidth * tanX * rightVector;
@@ -113,31 +133,39 @@ void *RenderingThread(void *data) {
             struct IntersectionStruct intersection;
             struct IntersectionStruct closestIntersection;
             bool hasIntersection = false;
+            Triangle foundTriangle;
 
+            /*
+               for(unsigned int k = 0; k < objects.size(); k++) {
+
+               const std::vector<Triangle> & triangles = objects[k].getMesh().getTriangles();
+               const std::vector<Vertex> & vertices = objects[k].getMesh().getVertices();
+               for(unsigned int l=0; l < triangles.size(); l++) {
+
+               const Vertex &v1 = vertices[triangles[l].getVertex(0)];
+               const Vertex &v2 = vertices[triangles[l].getVertex(1)];
+               const Vertex &v3 = vertices[triangles[l].getVertex(2)];
+               if(ray.intersect(v1.getPos(), v2.getPos(), v3.getPos(), intersection.p, intersection.t, intersection.u , intersection.v)) {
+               if(not hasIntersection or intersection.t < closestIntersection.t) {
+               closestIntersection = intersection;
+               closestIntersection.object_id = k;
+               closestIntersection.n1 = v1.getNormal();
+               closestIntersection.n2 = v2.getNormal();
+               closestIntersection.n3 = v3.getNormal();
+               hasIntersection = true;                        
+               }
+               }
+               }
+               }
+               */
             for(unsigned int k = 0; k < objects.size(); k++) {
-                
-                const std::vector<Triangle> & triangles = objects[k].getMesh().getTriangles();
-                const std::vector<Vertex> & vertices = objects[k].getMesh().getVertices();
-                
-                for(unsigned int l=0; l < triangles.size(); l++) {
-                    
-                    const Vertex &v1 = vertices[triangles[l].getVertex(0)];
-                    const Vertex &v2 = vertices[triangles[l].getVertex(1)];
-                    const Vertex &v3 = vertices[triangles[l].getVertex(2)];                    
-                    
-                    if(ray.intersect(v1.getPos(), v2.getPos(), v3.getPos(), intersection.p, intersection.t, intersection.u , intersection.v)) {
-                        if(not hasIntersection or intersection.t < closestIntersection.t) {
-                            closestIntersection = intersection;
-                            closestIntersection.object_id = k;
-                            closestIntersection.n1 = v1.getNormal();
-                            closestIntersection.n2 = v2.getNormal();
-                            closestIntersection.n3 = v3.getNormal();
-                            hasIntersection = true;                        
-                        }
-                    }
+                if(ray.intersect(*(objects[k].getMesh().getKdTree()), objects[k].getMesh().getVertices(), foundTriangle, intersection.p, intersection.t, intersection.u, intersection.v))
+                {
+                    closestIntersection = intersection;
+                    hasIntersection = true;
                 }
+
             }
-        
             Vec3Df c (backgroundColor);
             if (hasIntersection) {
                 for(unsigned int k = 0; k < lights.size(); k++) {
@@ -150,54 +178,55 @@ void *RenderingThread(void *data) {
                 }
             }
             image->setPixel (i, ((screenHeight-1)-j), qRgb (clamp (c[0], 0, 255),
-                                                       clamp (c[1], 0, 255),
-                                                       clamp (c[2], 0, 255)));
+                        clamp (c[1], 0, 255),
+                        clamp (c[2], 0, 255)));
         }
     }
     return NULL;
 }
 
 QImage RayTracer::render (const Vec3Df & camPos,
-                          const Vec3Df & direction,
-                          const Vec3Df & upVector,
-                          const Vec3Df & rightVector,
-                          float fieldOfView,
-                          float aspectRatio,
-                          unsigned int screenWidth,
-                          unsigned int screenHeight) {
+        const Vec3Df & direction,
+        const Vec3Df & upVector,
+        const Vec3Df & rightVector,
+        float fieldOfView,
+        float aspectRatio,
+        unsigned int screenWidth,
+        unsigned int screenHeight) {
 
     QTime time;
     time.start();
 
     QImage image (QSize (screenWidth, screenHeight), QImage::Format_RGB888);
-    
+
     Scene * scene = Scene::getInstance ();
     const BoundingBox & bbox = scene->getBoundingBox ();
     const Vec3Df & minBb = bbox.getMin ();
     const Vec3Df & maxBb = bbox.getMax ();
     const Vec3Df rangeBb = maxBb-minBb;
     std::vector<Object> & objects = scene->getObjects();
-    
+
     thread_data thread_data_array[NB_THREADS];
     pthread_t threads[NB_THREADS];
-    
+
+    /*
     // TEST
-    
+
     const std::vector<Triangle> & triangles = objects[1].getMesh().getTriangles();
     const std::vector<Vertex> & vertices = objects[1].getMesh().getVertices();
-    
+
     cerr << "Number of triangles : " << triangles.size() << endl;
-    
+
     KdTree *myTree = new KdTree(bbox, triangles);
     std::vector<Vec3Df> vertices_pos;
     for(unsigned int i = 0; i < vertices.size(); i++)
-        vertices_pos.push_back(vertices[i].getPos());
+    vertices_pos.push_back(vertices[i].getPos());
     myTree->build(vertices_pos);
-    
+
     cerr << "=======================================================================================" << endl;
-    
+
     // TEST
-    
+    */
     for (unsigned int i = 0; i < NB_THREADS; i++) {
         thread_data_array[i].camPos = &camPos;
         thread_data_array[i].direction = &direction;
@@ -221,7 +250,7 @@ QImage RayTracer::render (const Vec3Df & camPos,
     void *status;
     for (unsigned short i = 0; i < NB_THREADS; i++)
         pthread_join(threads[i], &status);
-    
+
     //cout << "Render time = " << time.elapsed() << endl;
     emit renderDone(time);
     return image;
