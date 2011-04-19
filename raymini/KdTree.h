@@ -26,13 +26,27 @@ public:
 		return splitAxis;
 	}
 	
+   	inline const unsigned int getSplitAxis() const {
+		return splitAxis;
+	}
+
 	inline float getSplitPosition() {
 		return splitPosition;
 	}
+
+   	inline const float getSplitPosition() const {
+		return splitPosition;
+	}
+
        
 	inline BoundingBox getBbox() {
 		return bbox;
 	}
+
+   inline const BoundingBox getBbox() const {
+		return bbox;
+	}
+
 	
 	inline KdTree* getLeft() {
 		return left;
@@ -60,7 +74,17 @@ public:
 	
     //TODO
 	//inline virtual ~KdTree();
-    //inline void operator=(const KdTree &tree);
+    inline void operator=(const KdTree &tree)
+    {
+        splitAxis = tree.getSplitAxis();
+        splitPosition = tree.getSplitPosition();
+        bbox = tree.getBbox();
+        *left = *(tree.getLeft());
+        *right = *(tree.getRight());
+        triangles = tree.getTriangles();
+
+    }
+
 
     void build(const std::vector<Vec3Df> & V);
 	void choosePlane(const std::vector<Vec3Df> &V);
