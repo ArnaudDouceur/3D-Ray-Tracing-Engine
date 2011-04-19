@@ -163,15 +163,17 @@ void *RenderingThread(void *data) {
                 
                 if(ray.intersect(*(objects[k].getMesh().getKdTree()), objects[k].getMesh().getVertices(), foundTriangle, intersection.p, intersection.t, intersection.u, intersection.v))
                 {
-                    closestIntersection = intersection;
-                    hasIntersection = true;
-                    closestIntersection.object_id = k;
-                    closestIntersection.n1 = vertices[foundTriangle.getVertex(0)].getNormal();
-                    closestIntersection.n2 = vertices[foundTriangle.getVertex(1)].getNormal();
-                    closestIntersection.n3 = vertices[foundTriangle.getVertex(2)].getNormal();
+                    if(not hasIntersection or intersection.t < closestIntersection.t) {
+                        closestIntersection = intersection;
+                        closestIntersection.object_id = k;
+                        closestIntersection.n1 = vertices[foundTriangle.getVertex(0)].getNormal();
+                        closestIntersection.n2 = vertices[foundTriangle.getVertex(1)].getNormal();
+                        closestIntersection.n3 = vertices[foundTriangle.getVertex(2)].getNormal();
+                        hasIntersection = true;
+                    }
                 }
-
             }
+            
             Vec3Df c (backgroundColor);
             if (hasIntersection) {
                 for(unsigned int k = 0; k < lights.size(); k++) {
