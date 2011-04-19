@@ -150,7 +150,7 @@ bool Ray::intersect (const KdTree & K, const vector<Vertex> V, Triangle & triang
         far = K.getLeft();
     }
     
-    intersect (*near, V, triangle, p, t, u, v);
-    intersect (*far, V, triangle, p, t, u, v);
-        
+    if(intersect (*near, V, triangle, p, t, u, v))
+        return true;
+    else return intersect (*far, V, triangle, p, t, u, v);        
 }
