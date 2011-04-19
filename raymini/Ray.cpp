@@ -91,7 +91,12 @@ bool Ray::intersect (const Vec3Df & v1, const Vec3Df & v2, const Vec3Df & v3, Ve
 bool Ray::intersect (const KdTree & K, const vector<Vertex> V, Triangle & triangle, Vec3Df & p, float & t, float & u, float & v) const {
     
     vector<Triangle> triangles = K.getTriangles();
-    
+    BoundingBox bbox = K.getBbox();
+
+    //If ray does not intersect bbox no point in continuing...
+    if(!intersect(bbox, p))
+        return false;
+
     // Non-empty leaf
     if(!triangles.empty()) {
         
@@ -123,7 +128,25 @@ bool Ray::intersect (const KdTree & K, const vector<Vertex> V, Triangle & triang
     // Empty leaf
     if(K.getLeft() == NULL)
         return false;
-    
-    
+
+    //Determine who is far and who is near
+    //Then recursively traverse on near then far ?
+    const KdTree * near;
+    const KdTree * far;
+
+    // TODO
+    if(direction[K.getSplitAxis()] > 0.f)
+    {
+        near = K.getLeft();
+        far = K.getRight();
+    }
+    else
+    {
+        near = K.getRight();
+        far = K.getLeft();
+    }
+
+    intersect (*near, V, triangle, p, t, u, v);
+    intersect (*far, V, triangle, p, t, u, v);
         
 }
