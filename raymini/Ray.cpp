@@ -88,7 +88,7 @@ bool Ray::intersect (const Vec3Df & v1, const Vec3Df & v2, const Vec3Df & v3, Ve
 	return true;
 }
 
-bool Ray::intersect (const KdTree & K, const vector<Vertex> V, Triangle & t, Vec3Df & p, float & t, float & u, float & v) const {
+bool Ray::intersect (const KdTree & K, const vector<Vertex> V, Triangle & triangle, Vec3Df & p, float & t, float & u, float & v) const {
     
     vector<Triangle> triangles = K.getTriangles();
     
@@ -121,8 +121,8 @@ bool Ray::intersect (const KdTree & K, const vector<Vertex> V, Triangle & t, Vec
     }
     
     // Empty leaf
-    if(K->getLeft() == NULL)
-        return false
+    if(K.getLeft() == NULL)
+        return false;
     
     
         

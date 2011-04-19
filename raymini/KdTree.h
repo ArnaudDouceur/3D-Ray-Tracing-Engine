@@ -38,13 +38,25 @@ public:
 		return left;
 	}
 	
+	inline const KdTree* getLeft() const {
+		return left;
+	}
+
 	inline KdTree* getRight() {
 		return right;
 	}
 	
-	inline getTriangles() {
+	inline const KdTree* getRight() const {
+		return right;
+	}
+	inline std::vector<Triangle> getTriangles() {
 		return triangles;
 	}
+
+   	inline const std::vector<Triangle> getTriangles() const {
+		return triangles;
+	}
+
 	
     //TODO
 	//inline virtual ~KdTree();
