@@ -159,10 +159,16 @@ void *RenderingThread(void *data) {
                }
                */
             for(unsigned int k = 0; k < objects.size(); k++) {
+                const std::vector<Vertex> & vertices = objects[k].getMesh().getVertices();
+                
                 if(ray.intersect(*(objects[k].getMesh().getKdTree()), objects[k].getMesh().getVertices(), foundTriangle, intersection.p, intersection.t, intersection.u, intersection.v))
                 {
                     closestIntersection = intersection;
                     hasIntersection = true;
+                    closestIntersection.object_id = k;
+                    closestIntersection.n1 = vertices[foundTriangle.getVertex(0)].getNormal();
+                    closestIntersection.n2 = vertices[foundTriangle.getVertex(1)].getNormal();
+                    closestIntersection.n3 = vertices[foundTriangle.getVertex(2)].getNormal();
                 }
 
             }

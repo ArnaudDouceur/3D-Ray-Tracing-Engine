@@ -16,10 +16,14 @@ public:
 		triangles = t;
 		bbox = b;
 		splitAxis = 0;
+		left = NULL;
+		right = NULL;
     }
 
 	inline KdTree() {
 		splitAxis = 0;
+		left = NULL;
+		right = NULL;
 	}
 	
 	inline unsigned int getSplitAxis() {
@@ -74,7 +78,7 @@ public:
 	
     //TODO
 	//inline virtual ~KdTree();
-    inline void operator=(const KdTree &tree)
+    /*inline void operator=(const KdTree &tree)
     {
         splitAxis = tree.getSplitAxis();
         splitPosition = tree.getSplitPosition();
@@ -83,7 +87,7 @@ public:
         *right = *(tree.getRight());
         triangles = tree.getTriangles();
 
-    }
+    }*/
 
 
     void build(const std::vector<Vec3Df> & V);
