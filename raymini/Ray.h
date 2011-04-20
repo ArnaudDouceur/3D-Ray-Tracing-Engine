@@ -29,7 +29,7 @@ public:
 
     bool intersect (const BoundingBox & bbox, Vec3Df & intersectionPoint) const;
     bool intersect (const Vec3Df & v1, const Vec3Df & v2, const Vec3Df & v3, Vec3Df & p, float & t, float & u, float & v) const;
-    bool intersect (const KdTree & K, const std::vector<Vertex> V, Triangle & triangle, Vec3Df & p, float & t, float & u, float & v) const;
+    bool intersect (const KdTree & K, const std::vector<Vertex>& V, Triangle & triangle, Vec3Df & p, float & t, float & u, float & v) const;
     
 private:
     Vec3Df origin;
