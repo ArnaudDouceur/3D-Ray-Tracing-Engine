@@ -57,9 +57,11 @@ void Scene::buildDefaultScene (bool HD) {
         ramMesh.loadOFF ("models/ram_HD.off");
     else
         ramMesh.loadOFF ("models/ram.off");
-    Material ramMat (1.f, 1.f, Vec3Df (1.f, .6f, .2f));
+    Material ramMat (1.f, 1.f, 128.f, Vec3Df (1.f, .6f, .2f));
     Object ram (ramMesh, ramMat);    
     objects.push_back (ram);
-    Light l (Vec3Df (3.0f, 3.0f, 3.0f), Vec3Df (1.0f, 1.0f, 1.0f), 1.0f);
-    lights.push_back (l);
+    Light l1 (Vec3Df (3.0f, 3.0f, 3.0f), Vec3Df (1.0f, 1.0f, 1.0f), 1.0f, 2.f);
+    //Light l2 (Vec3Df (3.0f, -3.0f, 3.0f), Vec3Df (1.0f, 1.0f, 1.0f), 1.0f, 0.f);
+    lights.push_back (l1);
+    //lights.push_back (l2);
 }
