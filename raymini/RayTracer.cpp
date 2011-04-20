@@ -50,9 +50,8 @@ inline int clamp (float f, int inf, int sup) {
 }
 
 Vec3Df RayTracer::brdfPhong(const Vec3Df &omegaI, const Vec3Df &omega0, const Vec3Df &n, const Material &material) {
-    Vec3Df R = n*Vec3Df::dotProduct(omegaI,n)*2-omegaI;
-   // return (material.getDiffuse()*Vec3Df::dotProduct(n,omegaI) + material.getSpecular()*Vec3Df::dotProduct(R,omega0))*material.getColor();
     
+    Vec3Df R = n*Vec3Df::dotProduct(omegaI,n)*2-omegaI;
     return (material.getDiffuse()*Vec3Df::dotProduct(n,omegaI) + material.getSpecular()*pow(Vec3Df::dotProduct(R,omega0), material.getShininess()))*material.getColor();
 }
 
@@ -237,7 +236,6 @@ QImage RayTracer::render (const Vec3Df & camPos,
     for (unsigned short i = 0; i < NB_THREADS; i++)
         pthread_join(threads[i], &status);
 
-    //cout << "Render time = " << time.elapsed() << endl;
     emit renderDone(time);
     return image;
 }
