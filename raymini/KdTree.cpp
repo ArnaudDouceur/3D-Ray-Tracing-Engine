@@ -1,6 +1,6 @@
 #include "KdTree.h"
 using namespace std;
-#define KDNODE_SIZE 256
+#define KDNODE_SIZE 64
 
 // Naive implementation for test purpose
 void KdTree::choosePlane(const std::vector<Vec3Df> &V) {

@@ -16,8 +16,24 @@
 static RayTracer * instance = NULL;
 
 RayTracer * RayTracer::getInstance () {
-    if (instance == NULL)
+    if (instance == NULL) {
         instance = new RayTracer ();
+        
+        Scene * scene = Scene::getInstance ();
+        std::vector<Object> & objects = scene->getObjects();
+        BoundingBox bbox = scene->getBoundingBox();
+        
+        for(unsigned int k = 0; k < objects.size(); k++) {
+            const std::vector<Triangle> & triangles = objects[k].getMesh().getTriangles();
+            const std::vector<Vertex> & vertices = objects[k].getMesh().getVertices();
+            KdTree * myTree = new KdTree(bbox, triangles);
+            std::vector<Vec3Df> vertices_pos;
+            for(unsigned int i = 0; i < vertices.size(); i++)
+                vertices_pos.push_back(vertices[i].getPos());
+            myTree->build(vertices_pos);
+            objects[k].getMesh().setKdTree(myTree);
+        }
+    }
     return instance;
 }
 
@@ -174,24 +190,6 @@ QImage RayTracer::render (const Vec3Df & camPos,
 
     thread_data thread_data_array[NB_THREADS];
     pthread_t threads[NB_THREADS];
-    
-    
-    cout << "Number of objects : " << objects.size() << endl;
-    for(unsigned int k = 0; k < objects.size(); k++) {
-
-        const std::vector<Triangle> & triangles = objects[k].getMesh().getTriangles();
-        const std::vector<Vertex> & vertices = objects[k].getMesh().getVertices();
-        cerr << "Number of triangles : " << triangles.size() << endl;
-        KdTree * myTree = new KdTree(bbox, triangles);
-        std::vector<Vec3Df> vertices_pos;
-        for(unsigned int i = 0; i < vertices.size(); i++)
-            vertices_pos.push_back(vertices[i].getPos());
-        myTree->build(vertices_pos);
-        objects[k].getMesh().setKdTree(myTree);
-
-        cerr << "=======================================================================================" << endl;
-
-    }
 
  
     for (unsigned int i = 0; i < NB_THREADS; i++) {
