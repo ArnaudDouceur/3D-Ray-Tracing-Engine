@@ -1,4 +1,5 @@
 .DS_Store
+../.DS_Store
 .moc
 *.swp
 .obj
@@ -6,3 +7,4 @@ raymini.app
 *~
 Makefile
 *.xcodeproj
+Info.plist
