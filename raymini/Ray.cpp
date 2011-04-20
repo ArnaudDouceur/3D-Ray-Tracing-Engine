@@ -113,7 +113,7 @@ bool Ray::intersect (const KdTree & K, const vector<Vertex>& V, Triangle & trian
             const Vec3Df & v2 = V[triangles[i].getVertex(1)].getPos();
             const Vec3Df & v3 = V[triangles[i].getVertex(2)].getPos();            
             
-            if (intersect (v1, v2, v3, current_p, current_t, current_u, current_v)) {
+            if (intersect (v1, v2, v3, current_p, current_t, current_u, current_v) && current_t > 0) {
                 if(!has_intersection or current_t < t) {
                     t = current_t;
                     p = current_p;

@@ -134,8 +134,9 @@ void *RenderingThread(void *data) {
 
             for(unsigned int k = 0; k < objects.size(); k++) {
                 const std::vector<Vertex> & vertices = objects[k].getMesh().getVertices();
+                KdTree tree = *(objects[k].getMesh().getKdTree());
                 
-                if(ray.intersect(*(objects[k].getMesh().getKdTree()), objects[k].getMesh().getVertices(), foundTriangle, intersection.p, intersection.t, intersection.u, intersection.v))
+                if(ray.intersect(tree, vertices, foundTriangle, intersection.p, intersection.t, intersection.u, intersection.v))
                 {
                     if(not hasIntersection or intersection.t < closestIntersection.t) {
                         closestIntersection = intersection;
@@ -151,12 +152,30 @@ void *RenderingThread(void *data) {
             Vec3Df c (backgroundColor);
             if (hasIntersection) {
                 for(unsigned int k = 0; k < lights.size(); k++) {
-                    // TODO : How to use light color ? So far we assume light is white
                     Vec3Df omegaI = lights[k].getPos() - closestIntersection.p;
                     omegaI.normalize();
-                    Vec3Df n = (1-closestIntersection.u-closestIntersection.v)*closestIntersection.n1;
-                    n += closestIntersection.u*closestIntersection.n2 + closestIntersection.v*closestIntersection.n3;
-                    c = 255.f*RayTracer::brdfPhong(omegaI, -ray.getDirection(), n, objects[closestIntersection.object_id].getMaterial());
+                    
+                    // Do we see the light ?
+                    Ray sray = Ray(closestIntersection.p+0.00001*omegaI, omegaI);
+                    bool canReachLight = true;
+                    
+                    for(unsigned int k = 0; k < objects.size(); k++) {
+                        const std::vector<Vertex> & vertices = objects[k].getMesh().getVertices();
+                        KdTree tree = *(objects[k].getMesh().getKdTree());
+
+                        if(sray.intersect(tree, vertices, foundTriangle, intersection.p, intersection.t, intersection.u, intersection.v)) {
+                                canReachLight = false;
+                                break;
+                        }
+                    }
+                    
+                    // If we see the light, let's use it
+                    if(canReachLight) {
+                        // TODO : How to use light color ? So far we assume light is white
+                        Vec3Df n = (1-closestIntersection.u-closestIntersection.v)*closestIntersection.n1;
+                        n += closestIntersection.u*closestIntersection.n2 + closestIntersection.v*closestIntersection.n3;
+                        c = 255.f*RayTracer::brdfPhong(omegaI, -ray.getDirection(), n, objects[closestIntersection.object_id].getMaterial());
+                    }
                 }
             }
             image->setPixel (i, ((screenHeight-1)-j), qRgb (clamp (c[0], 0, 255),
