@@ -11,7 +11,7 @@
 #include <iostream.h>
 #include <pthread.h>
 
-#define NB_THREADS 1
+#define NB_THREADS 8
 
 static RayTracer * instance = NULL;
 
@@ -100,25 +100,6 @@ void *RenderingThread(void *data) {
         max_i = (working_zone+1)*threadStep;
 
 
-    cout << "Number of objects : " << objects.size() << endl;
-    for(unsigned int k = 0; k < objects.size(); k++) {
-
-        const std::vector<Triangle> & triangles = objects[k].getMesh().getTriangles();
-        const std::vector<Vertex> & vertices = objects[k].getMesh().getVertices();
-        cerr << "Number of triangles : " << triangles.size() << endl;
-        KdTree * myTree = new KdTree(bbox, triangles);
-        std::vector<Vec3Df> vertices_pos;
-        for(unsigned int i = 0; i < vertices.size(); i++)
-            vertices_pos.push_back(vertices[i].getPos());
-        myTree->build(vertices_pos);
-        objects[k].getMesh().setKdTree(myTree);
-
-        cerr << "=======================================================================================" << endl;
-
-    }
-
-
-
     for (unsigned int i = working_zone*threadStep; i < max_i; i++) {
         for (unsigned int j = 0; j < screenHeight; j++) {
 
@@ -135,29 +116,6 @@ void *RenderingThread(void *data) {
             bool hasIntersection = false;
             Triangle foundTriangle;
 
-            /*
-               for(unsigned int k = 0; k < objects.size(); k++) {
-
-               const std::vector<Triangle> & triangles = objects[k].getMesh().getTriangles();
-               const std::vector<Vertex> & vertices = objects[k].getMesh().getVertices();
-               for(unsigned int l=0; l < triangles.size(); l++) {
-
-               const Vertex &v1 = vertices[triangles[l].getVertex(0)];
-               const Vertex &v2 = vertices[triangles[l].getVertex(1)];
-               const Vertex &v3 = vertices[triangles[l].getVertex(2)];
-               if(ray.intersect(v1.getPos(), v2.getPos(), v3.getPos(), intersection.p, intersection.t, intersection.u , intersection.v)) {
-               if(not hasIntersection or intersection.t < closestIntersection.t) {
-               closestIntersection = intersection;
-               closestIntersection.object_id = k;
-               closestIntersection.n1 = v1.getNormal();
-               closestIntersection.n2 = v2.getNormal();
-               closestIntersection.n3 = v3.getNormal();
-               hasIntersection = true;                        
-               }
-               }
-               }
-               }
-               */
             for(unsigned int k = 0; k < objects.size(); k++) {
                 const std::vector<Vertex> & vertices = objects[k].getMesh().getVertices();
                 
@@ -216,25 +174,26 @@ QImage RayTracer::render (const Vec3Df & camPos,
 
     thread_data thread_data_array[NB_THREADS];
     pthread_t threads[NB_THREADS];
+    
+    
+    cout << "Number of objects : " << objects.size() << endl;
+    for(unsigned int k = 0; k < objects.size(); k++) {
 
-    /*
-    // TEST
+        const std::vector<Triangle> & triangles = objects[k].getMesh().getTriangles();
+        const std::vector<Vertex> & vertices = objects[k].getMesh().getVertices();
+        cerr << "Number of triangles : " << triangles.size() << endl;
+        KdTree * myTree = new KdTree(bbox, triangles);
+        std::vector<Vec3Df> vertices_pos;
+        for(unsigned int i = 0; i < vertices.size(); i++)
+            vertices_pos.push_back(vertices[i].getPos());
+        myTree->build(vertices_pos);
+        objects[k].getMesh().setKdTree(myTree);
 
-    const std::vector<Triangle> & triangles = objects[1].getMesh().getTriangles();
-    const std::vector<Vertex> & vertices = objects[1].getMesh().getVertices();
+        cerr << "=======================================================================================" << endl;
 
-    cerr << "Number of triangles : " << triangles.size() << endl;
+    }
 
-    KdTree *myTree = new KdTree(bbox, triangles);
-    std::vector<Vec3Df> vertices_pos;
-    for(unsigned int i = 0; i < vertices.size(); i++)
-    vertices_pos.push_back(vertices[i].getPos());
-    myTree->build(vertices_pos);
-
-    cerr << "=======================================================================================" << endl;
-
-    // TEST
-    */
+ 
     for (unsigned int i = 0; i < NB_THREADS; i++) {
         thread_data_array[i].camPos = &camPos;
         thread_data_array[i].direction = &direction;
