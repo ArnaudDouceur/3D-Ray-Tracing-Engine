@@ -14,25 +14,40 @@
 #include "Vec3D.h"
 
 class Light {
-public:
-    inline Light () : color (Vec3Df (1.0f, 1.0f, 1.0f)), intensity (1.0f) {}
-    inline Light (const Vec3Df & pos, const Vec3Df & color, float intensity)
-        : pos (pos), color (color), intensity (intensity) {}
-    virtual ~Light () {}
+    public:
+        inline Light () : color (Vec3Df (1.0f, 1.0f, 1.0f)), intensity (1.0f), radius (0.f){}
+        inline Light (const Vec3Df & pos, const Vec3Df & color, float intensity)
+            : pos (pos), color (color), intensity (intensity), radius (0.f) {}
+        inline Light (const Vec3Df & pos, const Vec3Df & color, float intensity, float radius)
+            : pos (pos), color (color), intensity (intensity), radius (radius) 
+        {
 
-    inline const Vec3Df & getPos () const { return pos; }
-    inline const Vec3Df & getColor () const { return color; }
-    inline float getIntensity () const { return intensity; }
+            if (radius > 0.f)
+            {
+                std::cerr << "Area Light of radius : "<< radius << std::endl;
 
-    inline void setPos (const Vec3Df & p) { pos = p; }
-    inline void setColor (const Vec3Df & c) { color = c; }
-    inline void setIntensity (float i) { intensity = i; }
+            }            
 
-    
-private:
-    Vec3Df pos;
-    Vec3Df color;
-    float intensity;
+
+        }
+        virtual ~Light () {}
+
+        inline const Vec3Df & getPos () const { return pos; }
+        inline const Vec3Df & getColor () const { return color; }
+        inline float getIntensity () const { return intensity; }
+        inline float getRadius() const {return radius;}
+
+        inline void setPos (const Vec3Df & p) { pos = p; }
+        inline void setColor (const Vec3Df & c) { color = c; }
+        inline void setIntensity (float i) { intensity = i; }
+        inline void setRadius (float r) {radius = r;}
+
+
+    private:
+        Vec3Df pos;
+        Vec3Df color;
+        float intensity;
+        float radius;
 };
 
 
