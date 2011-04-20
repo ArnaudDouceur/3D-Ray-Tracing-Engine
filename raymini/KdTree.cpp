@@ -1,6 +1,6 @@
 #include "KdTree.h"
 using namespace std;
-#define KDNODE_SIZE 17
+#define KDNODE_SIZE 256
 
 // Naive implementation for test purpose
 void KdTree::choosePlane(const std::vector<Vec3Df> &V) {
@@ -13,7 +13,6 @@ void KdTree::build(const std::vector<Vec3Df> &V)
     unsigned int trianglesCount = triangles.size();
     
     if (trianglesCount <= KDNODE_SIZE) {
-        cout << "Creating a leaf with : " << trianglesCount << endl;
         return;
     }
         
