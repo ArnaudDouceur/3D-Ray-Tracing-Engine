@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "Vec3D.h"
+#include "Object.h"
 
 class Light {
     public:
@@ -41,6 +42,8 @@ class Light {
         inline void setColor (const Vec3Df & c) { color = c; }
         inline void setIntensity (float i) { intensity = i; }
         inline void setRadius (float r) {radius = r;}
+        // Determines if point light is visible 
+        bool isVisible (Vec3Df & point, Vec3Df & dir, std::vector<Object> & objects);
 
 
     private:

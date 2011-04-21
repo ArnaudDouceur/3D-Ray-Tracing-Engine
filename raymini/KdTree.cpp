@@ -46,7 +46,7 @@ void KdTree::build(const std::vector<Vec3Df> &V)
         if(v0_position > splitPosition - EPSILON || v1_position > splitPosition - EPSILON  || v2_position > splitPosition - EPSILON )
             right->triangles.push_back(t);
     }
-    
+
     left->build(V);
     right->build(V);
 }
