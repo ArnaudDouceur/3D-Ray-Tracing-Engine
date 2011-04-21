@@ -11,7 +11,6 @@
 #include <iostream.h>
 #include <pthread.h>
 
-#define EPSILON 0.00001
 #define NB_THREADS 8
 
 static RayTracer * instance = NULL;
@@ -101,9 +100,11 @@ void *RenderingThread(void *data) {
     unsigned int screenHeight = d->screenHeight;     
     QImage* image = d->image;                 
     Scene* scene = d->scene;                  
-    const BoundingBox & bbox = *d->bbox;      
-    const Vec3Df & minBb = *d->minBb;          
-    const Vec3Df & maxBb = *d->maxBb;      
+    /*
+    const BoundingBox & bbox = *d->bbox;
+    const Vec3Df & minBb = *d->minBb;
+    const Vec3Df & maxBb = *d->maxBb;
+    */
     const Vec3Df rangeBb = *d->rangeBb;    
     std::vector<Object> & objects =  *d->objects; 
     Vec3Df backgroundColor = *d->backgroundColor;
