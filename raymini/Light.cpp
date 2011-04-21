@@ -11,7 +11,7 @@
 #include "Vertex.h"
 #include "KdTree.h"
 
-#define EPSILON 0.00001
+#define EPSILON 0.001
 
 bool Light::isVisible(Vec3Df & point, Vec3Df & dir, std::vector<Object> & objects)
 {
