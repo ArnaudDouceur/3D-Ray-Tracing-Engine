@@ -50,7 +50,7 @@ void KdTree::build(const std::vector<Vec3Df> &V)
             right->triangles.push_back(t);
         }
     }
-    
+
     left->build(V);
     right->build(V);
 }

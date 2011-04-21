@@ -11,6 +11,7 @@
 #include <iostream.h>
 #include <pthread.h>
 
+#define EPSILON 0.00001
 #define NB_THREADS 8
 
 static RayTracer * instance = NULL;
@@ -155,22 +156,7 @@ void *RenderingThread(void *data) {
                 for(unsigned int k = 0; k < lights.size(); k++) {
                     Vec3Df omegaI = lights[k].getPos() - closestIntersection.p;
                     omegaI.normalize();
-                    
-                    // Do we see the light ?
-                    Ray sray = Ray(closestIntersection.p+0.00001*omegaI, omegaI);
-                    bool canReachLight = true;
-                    
-                    for(unsigned int k = 0; k < objects.size(); k++) {
-                        const std::vector<Vertex> & vertices = objects[k].getMesh().getVertices();
-                        KdTree tree = *(objects[k].getMesh().getKdTree());
-
-                        if(sray.intersect(tree, vertices, foundTriangle, intersection.p, intersection.t, intersection.u, intersection.v)) {
-                                canReachLight = false;
-                                break;
-                        }
-                    }
-                    
-                    // If we see the light, let's use it
+                    bool canReachLight = lights[k].isVisible(closestIntersection.p, omegaI, objects);
                     if(canReachLight) {
                         // TODO : How to use light color ? So far we assume light is white
                         Vec3Df n = (1-closestIntersection.u-closestIntersection.v)*closestIntersection.n1;
