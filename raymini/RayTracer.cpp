@@ -10,8 +10,11 @@
 #include "Scene.h"
 #include <iostream.h>
 #include <pthread.h>
+#include <time.h>
 
 #define NB_THREADS 8
+#define AMBIENT_OCCLUSION_RAY_COUNT 32
+#define AMBIENT_OCCLUSION_THETA M_PI/3
 
 static RayTracer * instance = NULL;
 
@@ -164,6 +167,51 @@ void *RenderingThread(void *data) {
                         Vec3Df n = (1-closestIntersection.u-closestIntersection.v)*closestIntersection.n1;
                         n += closestIntersection.u*closestIntersection.n2 + closestIntersection.v*closestIntersection.n3;
                         c = 255.f*RayTracer::brdfPhong(omegaI, -ray.getDirection(), n, objects[closestIntersection.object_id].getMaterial())*shade;
+                        
+                        
+                        // Ambient Occlusion                        
+                        /*srand ( time(NULL) );
+                        Vec3Df p_epsilon = closestIntersection.p + 0.001 * n;
+                        unsigned int rays_not_stopped = AMBIENT_OCCLUSION_RAY_COUNT;
+                        
+                        Vec3Df u;
+        				if(n[2])
+        					u = Vec3Df(-n[1], n[0], 0);
+        				else
+        					u = Vec3Df(0.0,0.0,1.0);
+        				Vec3Df w = Vec3Df::crossProduct(u,n);
+        				float h = cos(AMBIENT_OCCLUSION_THETA);
+        				
+                        for(unsigned int j = 0; j < AMBIENT_OCCLUSION_RAY_COUNT; j++) {
+            				// generate a random vector in the cone defined by n
+            			
+            				float s = rand()/(double)RAND_MAX;
+            				float r = rand()/(double)RAND_MAX;
+                            
+            				float phi = 2.0*M_PI*s;
+            				float z = h+(1.0-h)*r;
+            				float sinT = sqrt(1.0-z*z);
+            				Ray oray = Ray(p_epsilon, cos(phi)*sinT*u + sin(phi)*sinT*w + z*n);
+            				// Now let's see if this ray hits a nearby Triangle
+                            for(unsigned int k = 0; k < objects.size(); k++) {
+                                
+                                const std::vector<Vertex> & vertices = objects[k].getMesh().getVertices();
+                                KdTree tree = *(objects[k].getMesh().getKdTree());
+                                
+                                if(oray.intersect(tree, vertices, foundTriangle, intersection.p, intersection.t, intersection.u, intersection.v)) {
+                                        if(intersection.t < 0.05) {
+                                            rays_not_stopped--;
+                                            break;
+                                        }
+                                }
+            				
+            				}
+            			}
+            			if(rays_not_stopped != AMBIENT_OCCLUSION_RAY_COUNT) {
+                            cerr << rays_not_stopped << endl;
+            			}
+            			c = c*(((float)rays_not_stopped)/((float)AMBIENT_OCCLUSION_RAY_COUNT));
+                        */
                     }
                     
                 }
