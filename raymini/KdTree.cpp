@@ -1,7 +1,7 @@
 #include "KdTree.h"
 using namespace std;
 #define KDNODE_SIZE 64
-
+#define EPSILON 0.000001
 // Naive implementation for test purpose
 void KdTree::choosePlane(const std::vector<Vec3Df> &V) {
     splitPosition = (bbox.getMin()[splitAxis] + bbox.getMax()[splitAxis])/2.0;
@@ -41,14 +41,10 @@ void KdTree::build(const std::vector<Vec3Df> &V)
         float v1_position = V[t.getVertex(1)][splitAxis];
         float v2_position = V[t.getVertex(2)][splitAxis];
         
-        if(v0_position < splitPosition || v1_position < splitPosition || v2_position < splitPosition)
+        if(v0_position < splitPosition + EPSILON || v1_position < splitPosition + EPSILON || v2_position < splitPosition + EPSILON)
             left->triangles.push_back(t);
-        if(v0_position > splitPosition || v1_position > splitPosition || v2_position > splitPosition)
+        if(v0_position > splitPosition - EPSILON || v1_position > splitPosition - EPSILON  || v2_position > splitPosition - EPSILON )
             right->triangles.push_back(t);
-        if(v0_position == splitPosition && v1_position == splitPosition && v2_position == splitPosition) {
-            left->triangles.push_back(t);
-            right->triangles.push_back(t);
-        }
     }
     
     left->build(V);
