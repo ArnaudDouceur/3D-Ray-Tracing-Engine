@@ -157,13 +157,15 @@ void *RenderingThread(void *data) {
                 for(unsigned int k = 0; k < lights.size(); k++) {
                     Vec3Df omegaI = lights[k].getPos() - closestIntersection.p;
                     omegaI.normalize();
-                    bool canReachLight = lights[k].isVisible(closestIntersection.p, omegaI, objects);
-                    if(canReachLight) {
+                    float shade = lights[k].isVisible(closestIntersection.p, omegaI, 1, objects);
+                    if(shade > 0)
+                    {
                         // TODO : How to use light color ? So far we assume light is white
                         Vec3Df n = (1-closestIntersection.u-closestIntersection.v)*closestIntersection.n1;
                         n += closestIntersection.u*closestIntersection.n2 + closestIntersection.v*closestIntersection.n3;
-                        c = 255.f*RayTracer::brdfPhong(omegaI, -ray.getDirection(), n, objects[closestIntersection.object_id].getMaterial());
+                        c = 255.f*RayTracer::brdfPhong(omegaI, -ray.getDirection(), n, objects[closestIntersection.object_id].getMaterial())*shade;
                     }
+                    
                 }
             }
             image->setPixel (i, ((screenHeight-1)-j), qRgb (clamp (c[0], 0, 255),

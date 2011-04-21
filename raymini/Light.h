@@ -44,6 +44,10 @@ class Light {
         inline void setRadius (float r) {radius = r;}
         // Determines if point light is visible 
         bool isVisible (Vec3Df & point, Vec3Df & dir, std::vector<Object> & objects);
+        //Determines area light amount of visibility for a given amount of rays
+        // Between [0,1] 0 = no light/ 1 = complete light
+        float isVisible (Vec3Df & point, Vec3Df & dir, unsigned int rays, std::vector<Object> & objects);
+ 
 
 
     private:
