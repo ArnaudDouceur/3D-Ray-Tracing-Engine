@@ -83,7 +83,7 @@ void Scene::buildDefaultScene (bool HD) {
 #endif
 
 #ifdef RAM
-    AreaLight* al1 = new AreaLight(Vec3Df (2.0f, -0.5f, 4.0f), Vec3Df (1.f, 1.f, 1.f), 2.5f, Vec3Df (-2.f, 0.5f, -4.f), 0.2f);
+    AreaLight* al1 = new AreaLight(Vec3Df (2.0f, -0.5f, 4.0f), Vec3Df (1.f, 1.f, 1.f), 1.f, Vec3Df (-2.f, 0.5f, -4.f), 0.2f);
     lights.push_back (al1);
 //     Light l1 (Vec3Df (3.0f, 3.0f, 3.0f), Vec3Df (1.0f, 1.0f, 1.0f), 1.0f);
 //     lights.push_back (l1);

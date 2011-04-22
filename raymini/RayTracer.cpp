@@ -75,6 +75,7 @@ struct thread_data{
     std::vector<Object> * objects;
     Vec3Df * backgroundColor;
     unsigned short working_zone;
+    float ambient_occlusion_R;
 };
 
 struct IntersectionStruct {
@@ -101,7 +102,8 @@ void *RenderingThread(void *data) {
     unsigned int screenWidth = d->screenWidth;      
     unsigned int screenHeight = d->screenHeight;     
     QImage* image = d->image;                 
-    Scene* scene = d->scene;                  
+    Scene* scene = d->scene;       
+    float ambient_occlusion_R = d->ambient_occlusion_R;     
     /*
     const BoundingBox & bbox = *d->bbox;
     const Vec3Df & minBb = *d->minBb;
@@ -200,7 +202,7 @@ void *RenderingThread(void *data) {
                                 const std::vector<Vertex> & vertices = objects[k].getMesh().getVertices();
                                 KdTree & tree = *(objects[k].getMesh().getKdTree());
                                 if(oray.intersect(tree, vertices, foundTriangle, intersection.p, intersection.t, intersection.u, intersection.v)) {
-                                        if(intersection.t < 10) {
+                                        if(intersection.t < ambient_occlusion_R) {
                                             rays_not_stopped -= 1;
                                             AO += weight;
                                             break;
@@ -242,6 +244,7 @@ QImage RayTracer::render (const Vec3Df & camPos,
     const Vec3Df & maxBb = bbox.getMax ();
     const Vec3Df rangeBb = maxBb-minBb;
     std::vector<Object> & objects = scene->getObjects();
+    float ambient_occlusion_R = (maxBb - minBb).getLength()*0.1;
 
     thread_data thread_data_array[NB_THREADS];
     pthread_t threads[NB_THREADS];
@@ -264,6 +267,7 @@ QImage RayTracer::render (const Vec3Df & camPos,
         thread_data_array[i].objects = &objects;
         thread_data_array[i].backgroundColor = &backgroundColor;
         thread_data_array[i].working_zone = i;
+        thread_data_array[i].ambient_occlusion_R;
         pthread_create(&threads[i], NULL, RenderingThread, (void *) &thread_data_array[i]);        
     }
     void *status;
