@@ -112,7 +112,7 @@ void *RenderingThread(void *data) {
     std::vector<Object> & objects =  *d->objects; 
     Vec3Df backgroundColor = *d->backgroundColor;
     unsigned short working_zone = d->working_zone;
-    std::vector<Light> lights = scene->getLights();
+    std::vector<Light*> lights = scene->getLights();
 
     unsigned int threadStep = screenWidth/NB_THREADS;
     unsigned int max_i;
@@ -157,10 +157,19 @@ void *RenderingThread(void *data) {
             
             Vec3Df c (backgroundColor);
             if (hasIntersection) {
+                //TODO fix up lights make code nicer... we know this is an area light
+                //but we should test type first will do that later
                 for(unsigned int k = 0; k < lights.size(); k++) {
-                    Vec3Df omegaI = lights[k].getPos() - closestIntersection.p;
+                    /*
+                    Light l = *lights[k];
+                    Vec3Df omegaI = l.getPos() - closestIntersection.p;
                     omegaI.normalize();
-                    float shade = lights[k].isVisible(closestIntersection.p, omegaI, 1, objects);
+                    float shade = l.getVisibility(closestIntersection.p, omegaI, objects);
+                    */
+                    Vec3Df omegaI = (*lights[k]).getPos() - closestIntersection.p;
+                    omegaI.normalize();
+                    float shade = (*lights[k]).getVisibility(closestIntersection.p, omegaI, objects);
+
                     if(shade > 0)
                     {
                         // TODO : How to use light color ? So far we assume light is white

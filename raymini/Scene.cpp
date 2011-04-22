@@ -83,11 +83,14 @@ void Scene::buildDefaultScene (bool HD) {
 #endif
 
 #ifdef RAM
-    Light l1 (Vec3Df (3.0f, 3.0f, 3.0f), Vec3Df (1.0f, 1.0f, 1.0f), 1.0f, 2.0f);
-    lights.push_back (l1);
+    AreaLight* al1 = new AreaLight(Vec3Df (2.0f, -0.5f, 4.0f), Vec3Df (1.f, 1.f, 1.f), 2.5f, Vec3Df (-2.f, 0.5f, -4.f), 0.2f);
+    lights.push_back (al1);
+//     Light l1 (Vec3Df (3.0f, 3.0f, 3.0f), Vec3Df (1.0f, 1.0f, 1.0f), 1.0f);
+//     lights.push_back (l1);
+
 #endif
 #if defined (HUMAN) || defined (ARMADILLO)
-    Light l2 (Vec3Df (103.0f, 103.0f, 103.0f), Vec3Df (1.0f, 1.0f, 1.0f), 1.0f, 2.0f);
+    Light l2 (Vec3Df (103.0f, 103.0f, 103.0f), Vec3Df (1.0f, 1.0f, 1.0f), 2.5f);
     lights.push_back (l2);
 #endif
 }

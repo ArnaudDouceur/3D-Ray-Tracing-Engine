@@ -13,6 +13,7 @@
 
 #include "Object.h"
 #include "Light.h"
+#include "AreaLight.h"
 #include "BoundingBox.h"
 
 class Scene {
@@ -23,8 +24,8 @@ public:
     inline std::vector<Object> & getObjects () { return objects; }
     inline const std::vector<Object> & getObjects () const { return objects; }
     
-    inline std::vector<Light> & getLights () { return lights; }
-    inline const std::vector<Light> & getLights () const { return lights; }
+    inline std::vector<Light*> & getLights () { return lights; }
+    inline const std::vector<Light*> & getLights () const { return lights; }
     
     inline const BoundingBox & getBoundingBox () const { return bbox; }
     void updateBoundingBox ();
@@ -36,7 +37,7 @@ protected:
 private:
     void buildDefaultScene (bool HD);
     std::vector<Object> objects;
-    std::vector<Light> lights;
+    std::vector<Light*> lights;
     BoundingBox bbox;
 };
 

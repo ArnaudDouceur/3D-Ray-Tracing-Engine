@@ -14,47 +14,35 @@
 #include "Vec3D.h"
 #include "Object.h"
 
+#define POINT_LIGHT 0
+#define AREA_LIGHT  1
+
 class Light {
     public:
-        inline Light () : color (Vec3Df (1.0f, 1.0f, 1.0f)), intensity (1.0f), radius (0.f){}
+        inline Light () : color (Vec3Df (1.0f, 1.0f, 1.0f)), intensity (1.0f){}
         inline Light (const Vec3Df & pos, const Vec3Df & color, float intensity)
-            : pos (pos), color (color), intensity (intensity), radius (0.f) {}
-        inline Light (const Vec3Df & pos, const Vec3Df & color, float intensity, float radius)
-            : pos (pos), color (color), intensity (intensity), radius (radius) 
-        {
-
-            if (radius > 0.f)
-            {
-                std::cerr << "Area Light of radius : "<< radius << std::endl;
-
-            }            
-
-
-        }
+            : pos (pos), color (color), intensity (intensity) {}
         virtual ~Light () {}
 
         inline const Vec3Df & getPos () const { return pos; }
         inline const Vec3Df & getColor () const { return color; }
         inline float getIntensity () const { return intensity; }
-        inline float getRadius() const {return radius;}
+        virtual inline int getLightType() { return POINT_LIGHT;}
 
         inline void setPos (const Vec3Df & p) { pos = p; }
         inline void setColor (const Vec3Df & c) { color = c; }
         inline void setIntensity (float i) { intensity = i; }
-        inline void setRadius (float r) {radius = r;}
         // Determines if point light is visible 
         bool isVisible (Vec3Df & point, Vec3Df & dir, std::vector<Object> & objects);
-        //Determines area light amount of visibility for a given amount of rays
-        // Between [0,1] 0 = no light/ 1 = complete light
-        float isVisible (Vec3Df & point, Vec3Df & dir, unsigned int rays, std::vector<Object> & objects);
+        // Soft shading. Determines quantity of shade.
+        // Between [0,1] with 0 = total shade and 1 = total visibility
+        virtual float getVisibility (Vec3Df & point, Vec3Df & dir, std::vector<Object> & objects);
  
-
 
     private:
         Vec3Df pos;
         Vec3Df color;
         float intensity;
-        float radius;
 };
 
 
