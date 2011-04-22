@@ -13,6 +13,7 @@
 #include <QImage>
 #include <QLabel>
 #include <QLayout>
+#include <QProgressBar>
 
 #include <vector>
 #include <string>
@@ -29,7 +30,8 @@ public:
     static void showStatusMessage (const QString & msg);  
     
 public slots :
-    void displayTime(QTime);
+    void displayTime (QTime);
+    void setAO (bool);
     void renderRayImage ();
     void setBGColor ();
     void exportGLImage ();
@@ -51,6 +53,7 @@ private :
     QLabel * imageLabel;
     QImage rayImage;
     QLabel* timeDisplayLabel;
+    QProgressBar * renderBar;
 };
 
 #endif // WINDOW_H

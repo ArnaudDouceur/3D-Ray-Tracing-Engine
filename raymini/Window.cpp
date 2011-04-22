@@ -74,15 +74,21 @@ Window::~Window () {
 
 }
 
-void Window::displayTime(QTime time){
+void Window::displayTime (QTime time)
+{
 	int length = time.elapsed();
 	int minutes = length / (60*1000);
-	int secondes = (length - (minutes * (60*1000)))/1000;
-	int millisecondes = length - (minutes * (60*1000)) - (secondes*1000);
+	int seconds = (length - (minutes * (60*1000)))/1000;
+	int milliseconds = length - (minutes * (60*1000)) - (seconds*1000);
 	QVariant min = QVariant(minutes);
-	QVariant sec = QVariant(secondes);
-	QVariant milli = QVariant(millisecondes);
-	emit updateTime(min.toString()+" min "+sec.toString()+" s "+milli.toString());
+	QVariant sec = QVariant(seconds);
+	QVariant milli = QVariant(milliseconds);
+	emit updateTime("       "+min.toString()+" min "+sec.toString()+" s "+milli.toString());
+}
+
+void Window::setAO (bool ao)
+{
+    
 }
 
 void Window::renderRayImage () {
@@ -141,7 +147,10 @@ void Window::about () {
 void Window::initControlWidget () {
     controlWidget = new QGroupBox ();
     QVBoxLayout * layout = new QVBoxLayout (controlWidget);
-    
+
+    /** PREVIEW BOX
+     */
+
     QGroupBox * previewGroupBox = new QGroupBox ("Preview", controlWidget);
     QVBoxLayout * previewLayout = new QVBoxLayout (previewGroupBox);
     
@@ -164,19 +173,58 @@ void Window::initControlWidget () {
     previewLayout->addWidget (snapshotButton);
 
     layout->addWidget (previewGroupBox);
-    
+
+    /*************************************************************/
+
+    /** RENDER BOX
+     */
+
     QGroupBox * rayGroupBox = new QGroupBox ("Ray Tracing", controlWidget);
     QVBoxLayout * rayLayout = new QVBoxLayout (rayGroupBox);
+
+    /** Render options
+     */
+    QCheckBox * AOCheckBox = new QCheckBox ("Ambient Oclusion", rayGroupBox);
+    connect (AOCheckBox, SIGNAL (toggled (bool)), this, SLOT (setAO (bool)));
+    rayLayout->addWidget (AOCheckBox);
+
+
+    /** Render Button
+     */
     QPushButton * rayButton = new QPushButton ("Render", rayGroupBox);
     rayLayout->addWidget (rayButton);
     connect (rayButton, SIGNAL (clicked ()), this, SLOT (renderRayImage ()));
 
+    
+     /** Render Progress Bar
+     */
+    QLabel * renderBarLabel = new QLabel("Rendering progress bar: ") ;
+	rayLayout->addWidget(renderBarLabel);
+    renderBar = new QProgressBar (rayGroupBox);
+    rayLayout->addWidget (renderBar);
+    connect (RayTracer::getInstance(), SIGNAL(init(int, int)), renderBar, SLOT(setRange(int,int)));
+    connect (RayTracer::getInstance(), SIGNAL(progress(int)), renderBar, SLOT(setValue(int)));
+    
+    /** Render Time Label
+     */
+    QLabel * timeLabel = new QLabel("      Rendering time: ");
+	timeDisplayLabel = new QLabel("          0 seconds");
+	rayLayout->addWidget(timeLabel);
+	rayLayout->addWidget(timeDisplayLabel);	
+	connect(this,SIGNAL(updateTime(QString)),timeDisplayLabel,SLOT(setText(QString)));
+    /** Save Button
+     */
     QPushButton * saveButton  = new QPushButton ("Save", rayGroupBox);
     connect (saveButton, SIGNAL (clicked ()) , this, SLOT (exportRayImage ()));
     rayLayout->addWidget (saveButton);
 
     layout->addWidget (rayGroupBox);
-    
+
+    /*************************************************************/
+
+    /** GLOBAL BOX
+     */
+
     QGroupBox * globalGroupBox = new QGroupBox ("Global Settings", controlWidget);
     QVBoxLayout * globalLayout = new QVBoxLayout (globalGroupBox);
     
@@ -194,11 +242,8 @@ void Window::initControlWidget () {
 
     layout->addWidget (globalGroupBox);
 
-    QLabel * timeLabel = new QLabel("Time for rendering :") ;
-	timeDisplayLabel = new QLabel("");
-	rayLayout->addWidget(timeLabel);
-	rayLayout->addWidget(timeDisplayLabel);	
-	connect(this,SIGNAL(updateTime(QString)),timeDisplayLabel,SLOT(setText(QString)));
+    /*************************************************************/
+    
 
     layout->addStretch (0);
 }

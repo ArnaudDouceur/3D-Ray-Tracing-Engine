@@ -38,6 +38,9 @@ public:
                    unsigned int screenHeight);
 signals:
 	void renderDone(QTime time);
+    void init (int min, unsigned int max);
+    void progress (int val);
+    
     
 protected:
     inline RayTracer () {}

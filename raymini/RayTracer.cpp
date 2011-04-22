@@ -123,8 +123,10 @@ void *RenderingThread(void *data) {
         max_i = (working_zone+1)*threadStep;
 
 
-    for (unsigned int i = working_zone*threadStep; i < max_i; i++) {
-        for (unsigned int j = 0; j < screenHeight; j++) {
+    for (unsigned int i = working_zone*threadStep; i < max_i; i++) 
+    {
+        for (unsigned int j = 0; j < screenHeight; j++) 
+        {
 
             float tanX = tan (fieldOfView);
             float tanY = tanX/aspectRatio;
@@ -230,6 +232,7 @@ QImage RayTracer::render (const Vec3Df & camPos,
 
     QTime time;
     time.start();
+    emit init (0, 8);
 
     QImage image (QSize (screenWidth, screenHeight), QImage::Format_RGB888);
 
@@ -245,6 +248,7 @@ QImage RayTracer::render (const Vec3Df & camPos,
     pthread_t threads[NB_THREADS];
  
     for (unsigned int i = 0; i < NB_THREADS; i++) {
+        emit progress (i);
         thread_data_array[i].camPos = &camPos;
         thread_data_array[i].direction = &direction;
         thread_data_array[i].upVector = &upVector;
