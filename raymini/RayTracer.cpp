@@ -103,12 +103,7 @@ void *RenderingThread(void *data) {
     unsigned int screenHeight = d->screenHeight;     
     QImage* image = d->image;                 
     Scene* scene = d->scene;       
-    float ambient_occlusion_R = d->ambient_occlusion_R;     
-    /*
-    const BoundingBox & bbox = *d->bbox;
-    const Vec3Df & minBb = *d->minBb;
-    const Vec3Df & maxBb = *d->maxBb;
-    */
+    float ambient_occlusion_R = d->ambient_occlusion_R;
     const Vec3Df rangeBb = *d->rangeBb;    
     std::vector<Object> & objects =  *d->objects; 
     Vec3Df backgroundColor = *d->backgroundColor;

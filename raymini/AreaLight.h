@@ -6,7 +6,7 @@
 
 #include "Light.h"
 
-#define RESOLUTION 8
+#define RESOLUTION 128
 
 class AreaLight : public Light {
 public:
