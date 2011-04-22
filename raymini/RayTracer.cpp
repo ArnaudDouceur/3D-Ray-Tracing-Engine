@@ -161,12 +161,7 @@ void *RenderingThread(void *data) {
                 //TODO fix up lights make code nicer... we know this is an area light
                 //but we should test type first will do that later
                 for(unsigned int k = 0; k < lights.size(); k++) {
-                    /*
-                    Light l = *lights[k];
-                    Vec3Df omegaI = l.getPos() - closestIntersection.p;
-                    omegaI.normalize();
-                    float shade = l.getVisibility(closestIntersection.p, omegaI, objects);
-                    */
+                
                     Vec3Df omegaI = (*lights[k]).getPos() - closestIntersection.p;
                     omegaI.normalize();
                     float shade = (*lights[k]).getVisibility(closestIntersection.p, omegaI, objects);

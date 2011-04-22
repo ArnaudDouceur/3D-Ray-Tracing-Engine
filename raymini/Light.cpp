@@ -20,7 +20,8 @@ bool Light::isVisible(Vec3Df & point, Vec3Df & dir, std::vector<Object> & object
     float t, u, v;
     Vec3Df p;
 
-    for(unsigned int k = 0; k < objects.size(); k++) {
+    for(unsigned int k = 0; k < objects.size(); k++) 
+    {
         const std::vector<Vertex> & vertices = objects[k].getMesh().getVertices();
         KdTree tree = *(objects[k].getMesh().getKdTree());
 
@@ -33,7 +34,6 @@ bool Light::isVisible(Vec3Df & point, Vec3Df & dir, std::vector<Object> & object
 
 float Light::getVisibility (Vec3Df & point, Vec3Df & dir, std::vector<Object> & objects)
 {
-    std::cerr << "Not" << std::endl;
     return isVisible(point, dir, objects)? 1.0f : 0.0f; 
 }
 
