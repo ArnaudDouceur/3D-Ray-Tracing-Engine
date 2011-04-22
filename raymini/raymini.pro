@@ -1,3 +1,6 @@
+QMAKE_CXXFLAGS += -fopenmp
+QMAKE_LFLAGS += -fopenmp
+
 TEMPLATE = app
 TARGET   = raymini
 CONFIG  += qt opengl warn_on release thread

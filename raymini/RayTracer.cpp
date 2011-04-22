@@ -14,7 +14,8 @@
 
 #define NB_THREADS 8
 #define AMBIENT_OCCLUSION_RAY_COUNT 64
-
+#define ANTIALIASING_RESOLUTION 2
+#define AMBIENT_OCCLUSION ON
 static RayTracer * instance = NULL;
 
 RayTracer * RayTracer::getInstance () {
@@ -57,27 +58,6 @@ Vec3Df RayTracer::brdfPhong(const Vec3Df &omegaI, const Vec3Df &omega0, const Ve
     return (material.getDiffuse()*Vec3Df::dotProduct(n,omegaI) + material.getSpecular()*pow(Vec3Df::dotProduct(R,omega0), material.getShininess()))*material.getColor();
 }
 
-struct thread_data{
-    const Vec3Df * camPos;
-    const Vec3Df * direction;
-    const Vec3Df * upVector;
-    const Vec3Df * rightVector;
-    float fieldOfView;
-    float aspectRatio;
-    unsigned int screenWidth;
-    unsigned int screenHeight;
-    QImage* image;
-    Scene* scene;
-    const BoundingBox * bbox;
-    const Vec3Df * minBb;
-    const Vec3Df * maxBb;
-    const Vec3Df * rangeBb;
-    std::vector<Object> * objects;
-    Vec3Df * backgroundColor;
-    unsigned short working_zone;
-    float ambient_occlusion_R;
-};
-
 struct IntersectionStruct {
     Vec3Df p;
     float t;
@@ -88,131 +68,6 @@ struct IntersectionStruct {
     Vec3Df n3;
     unsigned short object_id;
 };
-
-void *RenderingThread(void *data) {
-
-    struct thread_data *d = (struct thread_data *) data;
-
-    const Vec3Df & camPos = *d->camPos;         
-    const Vec3Df & direction = *d->direction;      
-    const Vec3Df & upVector = *d->upVector;       
-    const Vec3Df & rightVector = *d->rightVector;    
-    float fieldOfView = d->fieldOfView;             
-    float aspectRatio = d->aspectRatio;             
-    unsigned int screenWidth = d->screenWidth;      
-    unsigned int screenHeight = d->screenHeight;     
-    QImage* image = d->image;                 
-    Scene* scene = d->scene;       
-    float ambient_occlusion_R = d->ambient_occlusion_R;
-    const Vec3Df rangeBb = *d->rangeBb;    
-    std::vector<Object> & objects =  *d->objects; 
-    Vec3Df backgroundColor = *d->backgroundColor;
-    unsigned short working_zone = d->working_zone;
-    std::vector<Light*> lights = scene->getLights();
-
-    unsigned int threadStep = screenWidth/NB_THREADS;
-    unsigned int max_i;
-    if(working_zone == NB_THREADS-1)
-        max_i = screenWidth;
-    else
-        max_i = (working_zone+1)*threadStep;
-
-
-    for (unsigned int i = working_zone*threadStep; i < max_i; i++) {
-        for (unsigned int j = 0; j < screenHeight; j++) {
-
-            float tanX = tan (fieldOfView);
-            float tanY = tanX/aspectRatio;
-            Vec3Df stepX = (float (i) - screenWidth/2.f)/screenWidth * tanX * rightVector;
-            Vec3Df stepY = (float (j) - screenHeight/2.f)/screenHeight * tanY * upVector;
-            Vec3Df step = stepX + stepY;
-            Vec3Df dir = direction + step;
-            dir.normalize ();
-            Ray ray (camPos, dir);
-            struct IntersectionStruct intersection;
-            struct IntersectionStruct closestIntersection;
-            bool hasIntersection = false;
-            Triangle foundTriangle;
-
-            for(unsigned int k = 0; k < objects.size(); k++) {
-                const std::vector<Vertex> & vertices = objects[k].getMesh().getVertices();
-                KdTree tree = *(objects[k].getMesh().getKdTree());
-                
-                if(ray.intersect(tree, vertices, foundTriangle, intersection.p, intersection.t, intersection.u, intersection.v))
-                {
-                    if(not hasIntersection or intersection.t < closestIntersection.t) {
-                        closestIntersection = intersection;
-                        closestIntersection.object_id = k;
-                        closestIntersection.n1 = vertices[foundTriangle.getVertex(0)].getNormal();
-                        closestIntersection.n2 = vertices[foundTriangle.getVertex(1)].getNormal();
-                        closestIntersection.n3 = vertices[foundTriangle.getVertex(2)].getNormal();
-                        hasIntersection = true;
-                    }
-                }
-            }
-            
-            Vec3Df c (backgroundColor);
-            if (hasIntersection) {
-                //TODO fix up lights make code nicer... we know this is an area light
-                //but we should test type first will do that later
-                for(unsigned int k = 0; k < lights.size(); k++) {
-                
-                    Vec3Df omegaI = (*lights[k]).getPos() - closestIntersection.p;
-                    omegaI.normalize();
-                    float shade = (*lights[k]).getVisibility(closestIntersection.p, omegaI, objects);
-
-                    if(shade > 0)
-                    {
-                        // TODO : How to use light color ? So far we assume light is white
-                        Vec3Df n = (1-closestIntersection.u-closestIntersection.v)*closestIntersection.n1;
-                        n += closestIntersection.u*closestIntersection.n2 + closestIntersection.v*closestIntersection.n3;
-                        n.normalize ();
-                        c = 255.f*RayTracer::brdfPhong(omegaI, -ray.getDirection(), n, objects[closestIntersection.object_id].getMaterial())*shade;
-                        
-                        // Ambient Occlusion                        
-                        Vec3Df p_epsilon = closestIntersection.p + 0.0001 * n;
-                        unsigned int rays_not_stopped = AMBIENT_OCCLUSION_RAY_COUNT;
-                        float AO = 0.f;
-                        float sumW = 0.f;
-        				
-                        for(unsigned int j = 0; j < AMBIENT_OCCLUSION_RAY_COUNT; j++) {
-
-            				float r0 = (double (rand()) - (double)RAND_MAX/2)/(double)RAND_MAX ;
-            				float r1 = (double (rand()) - (double)RAND_MAX/2)/(double)RAND_MAX ;
-            				float r2 = (double (rand()) - (double)RAND_MAX/2)/(double)RAND_MAX ;
-                            Vec3Df dRay (r0, r1, r2);
-                            dRay.normalize ();
-                            if (Vec3Df::dotProduct (dRay, n) < 0.f)
-                                dRay = -dRay;
-            				Ray oray = Ray(p_epsilon, dRay);
-            				float weight = Vec3Df::dotProduct (n, dRay);
-                            // Now let's see if this ray hits a nearby Triangle
-                            for(unsigned int k = 0; k < objects.size(); k++) {
-                                
-                                const std::vector<Vertex> & vertices = objects[k].getMesh().getVertices();
-                                KdTree & tree = *(objects[k].getMesh().getKdTree());
-                                if(oray.intersect(tree, vertices, foundTriangle, intersection.p, intersection.t, intersection.u, intersection.v)) {
-                                        if(intersection.t < ambient_occlusion_R) {
-                                            rays_not_stopped -= 1;
-                                            AO += weight;
-                                            break;
-                                        }
-                                }
-            				}
-                            sumW += weight;
-            			}
-                        c = c* (1.f - AO/sumW);
-                    }
-                    
-                }
-            }
-            image->setPixel (i, ((screenHeight-1)-j), qRgb (clamp (c[0], 0, 255),
-                        clamp (c[1], 0, 255),
-                        clamp (c[2], 0, 255)));
-        }
-    }
-    return NULL;
-}
 
 QImage RayTracer::render (const Vec3Df & camPos,
         const Vec3Df & direction,
@@ -234,36 +89,115 @@ QImage RayTracer::render (const Vec3Df & camPos,
     const Vec3Df & maxBb = bbox.getMax ();
     const Vec3Df rangeBb = maxBb-minBb;
     std::vector<Object> & objects = scene->getObjects();
-    float ambient_occlusion_R = (maxBb - minBb).getLength()*0.1;
+    float ambient_occlusion_R = (maxBb - minBb).getLength()*0.03;
 
-    thread_data thread_data_array[NB_THREADS];
-    pthread_t threads[NB_THREADS];
- 
-    for (unsigned int i = 0; i < NB_THREADS; i++) {
-        thread_data_array[i].camPos = &camPos;
-        thread_data_array[i].direction = &direction;
-        thread_data_array[i].upVector = &upVector;
-        thread_data_array[i].rightVector = &rightVector;
-        thread_data_array[i].fieldOfView = fieldOfView;
-        thread_data_array[i].aspectRatio = aspectRatio;
-        thread_data_array[i].screenWidth = screenWidth;
-        thread_data_array[i].screenHeight = screenHeight;
-        thread_data_array[i].image = &image;
-        thread_data_array[i].scene = scene;
-        thread_data_array[i].bbox = &bbox;
-        thread_data_array[i].minBb = &minBb;
-        thread_data_array[i].maxBb = &maxBb;
-        thread_data_array[i].rangeBb = &rangeBb;
-        thread_data_array[i].objects = &objects;
-        thread_data_array[i].backgroundColor = &backgroundColor;
-        thread_data_array[i].working_zone = i;
-        thread_data_array[i].ambient_occlusion_R;
-        pthread_create(&threads[i], NULL, RenderingThread, (void *) &thread_data_array[i]);        
+    std::vector<Light*> lights = scene->getLights();
+    
+    #pragma omp parallel for default(shared) schedule(dynamic)
+    for (unsigned int i = 0; i < screenWidth; i++) {
+        for (unsigned int j = 0; j < screenHeight; j++) {
+            
+            Vec3Df color(0,0,0);
+            
+            for (unsigned int i_antialiasing = 0; i_antialiasing < ANTIALIASING_RESOLUTION; i_antialiasing++) {
+                for (unsigned int j_antialiasing = 0; j_antialiasing < ANTIALIASING_RESOLUTION; j_antialiasing++) {
+                
+                    float tanX = tan (fieldOfView);
+                    float tanY = tanX/aspectRatio;
+                    Vec3Df stepX = (float (i) + float(i_antialiasing)/ANTIALIASING_RESOLUTION - screenWidth/2.f)/screenWidth * tanX * rightVector;
+                    Vec3Df stepY = (float (j) + float(j_antialiasing)/ANTIALIASING_RESOLUTION - screenHeight/2.f)/screenHeight * tanY * upVector;
+                    Vec3Df step = stepX + stepY;
+                    Vec3Df dir = direction + step;
+                    dir.normalize ();
+                    Ray ray (camPos, dir);
+                    struct IntersectionStruct intersection;
+                    struct IntersectionStruct closestIntersection;
+                    bool hasIntersection = false;
+                    Triangle foundTriangle;
+
+                    for(unsigned int k = 0; k < objects.size(); k++) {
+                        const std::vector<Vertex> & vertices = objects[k].getMesh().getVertices();
+                        KdTree tree = *(objects[k].getMesh().getKdTree());
+                
+                        if(ray.intersect(tree, vertices, foundTriangle, intersection.p, intersection.t, intersection.u, intersection.v))
+                        {
+                            if(not hasIntersection or intersection.t < closestIntersection.t) {
+                                closestIntersection = intersection;
+                                closestIntersection.object_id = k;
+                                closestIntersection.n1 = vertices[foundTriangle.getVertex(0)].getNormal();
+                                closestIntersection.n2 = vertices[foundTriangle.getVertex(1)].getNormal();
+                                closestIntersection.n3 = vertices[foundTriangle.getVertex(2)].getNormal();
+                                hasIntersection = true;
+                            }
+                        }
+                    }
+            
+                    Vec3Df c (backgroundColor);
+                    if (hasIntersection) {
+                        //TODO fix up lights make code nicer... we know this is an area light
+                        //but we should test type first will do that later
+                        for(unsigned int k = 0; k < lights.size(); k++) {
+                
+                            Vec3Df omegaI = (*lights[k]).getPos() - closestIntersection.p;
+                            omegaI.normalize();
+                            float shade = (*lights[k]).getVisibility(closestIntersection.p, omegaI, objects);
+
+                            if(shade > 0)
+                            {
+                                // TODO : How to use light color ? So far we assume light is white
+                                Vec3Df n = (1-closestIntersection.u-closestIntersection.v)*closestIntersection.n1;
+                                n += closestIntersection.u*closestIntersection.n2 + closestIntersection.v*closestIntersection.n3;
+                                n.normalize ();
+                                c = 255.f*RayTracer::brdfPhong(omegaI, -ray.getDirection(), n, objects[closestIntersection.object_id].getMaterial())*shade;
+                        
+                                #ifdef AMBIENT_OCCLUSION
+                                // Ambient Occlusion                        
+                                Vec3Df p_epsilon = closestIntersection.p + 0.0001 * n;
+                                unsigned int rays_not_stopped = AMBIENT_OCCLUSION_RAY_COUNT;
+                                float AO = 0.f;
+                                float sumW = 0.f;
+        				
+                                for(unsigned int j = 0; j < AMBIENT_OCCLUSION_RAY_COUNT; j++) {
+
+                    				float r0 = (double (rand()) - (double)RAND_MAX/2)/(double)RAND_MAX ;
+                    				float r1 = (double (rand()) - (double)RAND_MAX/2)/(double)RAND_MAX ;
+                    				float r2 = (double (rand()) - (double)RAND_MAX/2)/(double)RAND_MAX ;
+                                    Vec3Df dRay (r0, r1, r2);
+                                    dRay.normalize ();
+                                    if (Vec3Df::dotProduct (dRay, n) < 0.f)
+                                        dRay = -dRay;
+                    				Ray oray = Ray(p_epsilon, dRay);
+                    				float weight = Vec3Df::dotProduct (n, dRay);
+                                    // Now let's see if this ray hits a nearby Triangle
+                                    for(unsigned int k = 0; k < objects.size(); k++) {
+                                
+                                        const std::vector<Vertex> & vertices = objects[k].getMesh().getVertices();
+                                        KdTree & tree = *(objects[k].getMesh().getKdTree());
+                                        if(oray.intersect(tree, vertices, foundTriangle, intersection.p, intersection.t, intersection.u, intersection.v)) {
+                                                if(intersection.t < ambient_occlusion_R) {
+                                                    rays_not_stopped -= 1;
+                                                    AO += weight;
+                                                    break;
+                                                }
+                                        }
+                    				}
+                                    sumW += weight;
+                    			}
+                                c = c* (1.f - AO/sumW);
+                                #endif
+                            }
+                    
+                        }
+                    }
+                    color += c;
+                }
+            }
+            color = 1.f/ANTIALIASING_RESOLUTION/ANTIALIASING_RESOLUTION * color;
+            image.setPixel (i, (screenHeight-1)-j, qRgb (clamp (color[0], 0, 255),
+                        clamp (color[1], 0, 255),
+                        clamp (color[2], 0, 255)));
+        }
     }
-    void *status;
-    for (unsigned short i = 0; i < NB_THREADS; i++)
-        pthread_join(threads[i], &status);
-
     emit renderDone(time);
     return image;
 }
