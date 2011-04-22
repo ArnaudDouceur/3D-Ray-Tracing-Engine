@@ -27,6 +27,5 @@ float AreaLight::getVisibility(Vec3Df & point, Vec3Df & dir, std::vector<Object>
         if(isVisible(point, dir, objects))
             visibility++;
     }
-    return 0.5f;
-	//return (float) visibility / (float) resolution;
+	return (float) visibility / (float) resolution;
 }
