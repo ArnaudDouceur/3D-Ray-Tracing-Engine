@@ -100,21 +100,22 @@ bool Ray::intersect (const KdTree & K, const vector<Vertex>& V, Triangle & trian
     }
 
     // Non-empty leaf
-    if(!triangles.empty()) {
-        
-        float closest_t;
+    if(!triangles.empty()) 
+    {    
         float current_t, current_u, current_v;
         Vec3Df current_p;
         bool has_intersection = false;
         
-        for(unsigned int i = 0; i < triangles.size(); i++) {
-            
+        for(unsigned int i = 0; i < triangles.size(); i++) 
+        {
             const Vec3Df & v1 = V[triangles[i].getVertex(0)].getPos();
             const Vec3Df & v2 = V[triangles[i].getVertex(1)].getPos();
             const Vec3Df & v3 = V[triangles[i].getVertex(2)].getPos();            
             
-            if (intersect (v1, v2, v3, current_p, current_t, current_u, current_v) && current_t > 0) {
-                if(!has_intersection or current_t < t) {
+            if (intersect (v1, v2, v3, current_p, current_t, current_u, current_v) && current_t > 0) 
+            {
+                if(!has_intersection or current_t < t) 
+                {
                     t = current_t;
                     p = current_p;
                     u = current_u;

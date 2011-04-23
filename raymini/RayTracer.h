@@ -20,6 +20,14 @@
 class RayTracer : public QObject {
     Q_OBJECT
 public:
+    enum OptionFlag 
+    {
+        NONE = 0,
+        ENABLE_AO = 0x2,
+        ENABLE_AA = 0x4       
+    };
+    static int AO_RAY_COUNT;
+    static int ANTIALIASING_RES;
     static RayTracer * getInstance ();
     static void destroyInstance ();
 
@@ -35,10 +43,11 @@ public:
                    float fieldOfView,
                    float aspectRatio,
                    unsigned int screenWidth,
-                   unsigned int screenHeight);
+                   unsigned int screenHeight,
+                   unsigned int flags);
 signals:
 	void renderDone(QTime time);
-    void init (int min, unsigned int max);
+    void init (int min, int max);
     void progress (int val);
     
     
@@ -47,7 +56,7 @@ protected:
     inline virtual ~RayTracer () {}
     
 private:
-    Vec3Df backgroundColor;
+    Vec3Df backgroundColor; 
 };
 
 
