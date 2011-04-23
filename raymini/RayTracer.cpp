@@ -76,6 +76,7 @@ QImage RayTracer::render (const Vec3Df & camPos,
         float aspectRatio,
         unsigned int screenWidth,
         unsigned int screenHeight,
+        unsigned int lightChoice,
         unsigned int flags) {
 
     QTime time;
@@ -85,6 +86,7 @@ QImage RayTracer::render (const Vec3Df & camPos,
     QImage image (QSize (screenWidth, screenHeight), QImage::Format_RGB888);
 
     Scene * scene = Scene::getInstance ();
+    scene->setLights (lightChoice);
     const BoundingBox & bbox = scene->getBoundingBox ();
     const Vec3Df & minBb = bbox.getMin ();
     const Vec3Df & maxBb = bbox.getMax ();

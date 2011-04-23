@@ -9,7 +9,7 @@
 
 // define RAM, ARMADILLO or HUMAN
 #define RAM
-
+#define ALIGHT_RADIUS 1.f
 
 using namespace std;
 
@@ -46,7 +46,31 @@ void Scene::updateBoundingBox () {
     }
 }
 
-// Changer ce code pour créer des scènes originales
+void Scene::setLights(unsigned int lightChoice)
+{
+    lights.clear();
+    Light* l;
+
+    switch (lightChoice)
+    {
+        case POINT_LIGHT:
+            l = new Light (Vec3Df (3.0f, 3.0f, 3.0f), Vec3Df (1.0f, 1.0f, 1.0f), 1.0f);
+            lights.push_back (l);
+
+            break;
+        case AREA_LIGHT:
+            l = new AreaLight(Vec3Df (2.0f, -0.5f, 4.0f), Vec3Df (1.f, 1.f, 1.f), 1.f, Vec3Df (-2.f, 0.5f, -4.f), ALIGHT_RADIUS);
+            lights.push_back (l);
+
+            break;
+        default:
+            std::cerr << "Somebody switched the lights off..." << std::endl;
+    }
+
+}
+
+
+// TODO find nicer scenes if possible
 void Scene::buildDefaultScene (bool HD) {
 #ifdef RAM    
     Mesh groundMesh;
@@ -81,7 +105,8 @@ void Scene::buildDefaultScene (bool HD) {
     Object human (humanMesh, humanMat);    
     objects.push_back (human);
 #endif
-
+    //setLights (AREA_LIGHT);
+/*
 #ifdef RAM
  //   AreaLight* al1 = new AreaLight(Vec3Df (2.0f, -0.5f, 4.0f), Vec3Df (1.f, 1.f, 1.f), 1.f, Vec3Df (-2.f, 0.5f, -4.f), 0.2f);
 //    lights.push_back (al1);
@@ -90,7 +115,8 @@ void Scene::buildDefaultScene (bool HD) {
 
 #endif
 #if defined (HUMAN) || defined (ARMADILLO)
-    Light l2 (Vec3Df (103.0f, 103.0f, 103.0f), Vec3Df (1.0f, 1.0f, 1.0f), 2.5f);
+    Light* l2 = new Light (Vec3Df (103.0f, 103.0f, 103.0f), Vec3Df (1.0f, 1.0f, 1.0f), 2.5f);
     lights.push_back (l2);
 #endif
+*/
 }

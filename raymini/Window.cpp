@@ -66,6 +66,7 @@ Window::Window () : QMainWindow (NULL) {
     addDockWidget (Qt::RightDockWidgetArea, controlDockWidget);
     controlDockWidget->setFeatures (QDockWidget::AllDockWidgetFeatures);
 
+    lightChoice = POINT_LIGHT;
     flags = NONE;
 
     setMinimumWidth (800);
@@ -108,6 +109,11 @@ void Window::updateAA(int value)
     RayTracer::ANTIALIASING_RES = value;
 }
 
+void Window::updateLights (int type)
+{
+        lightChoice = type;
+}
+
 void Window::renderRayImage () {
     qglviewer::Camera * cam = viewer->camera ();
     RayTracer * rayTracer = RayTracer::getInstance ();
@@ -125,7 +131,7 @@ void Window::renderRayImage () {
     unsigned int screenWidth = cam->screenWidth ();
     unsigned int screenHeight = cam->screenHeight ();
     rayImage = rayTracer->render (camPos, viewDirection, upVector, rightVector,
-                                  fieldOfView, aspectRatio, screenWidth, screenHeight, flags);
+                              fieldOfView, aspectRatio, screenWidth, screenHeight, lightChoice, flags);
     imageLabel->setPixmap (QPixmap::fromImage (rayImage));
     
 }
@@ -207,9 +213,7 @@ void Window::initControlWidget () {
     QSlider* AOSlider = new QSlider(Qt::Horizontal);
 	rayLayout->addWidget(AOSlider);
     connect (AOCheckBox, SIGNAL (toggled(bool)), AOSlider, SLOT(setVisible(bool)));
-	//AOSlider->setTickInterval(1);
-	//AOSlider->setTickPosition(QSlider::TicksAbove);
-	AOSlider->setRange(0,64);
+    AOSlider->setRange(0,64);
 	AOSlider->setVisible(false);
     connect (AOSlider, SIGNAL (valueChanged(int)), this, SLOT(updateAO(int)));
 
@@ -264,6 +268,17 @@ void Window::initControlWidget () {
     QGroupBox * globalGroupBox = new QGroupBox ("Global Settings", controlWidget);
     QVBoxLayout * globalLayout = new QVBoxLayout (globalGroupBox);
     
+    /**
+     * Lights
+     */
+	QLabel* lightsLabel = new QLabel("Lights");
+    QComboBox* lightsComboBox = new QComboBox;
+	lightsComboBox->addItem("Point Light");
+	lightsComboBox->addItem("Area Light");
+	globalLayout->addWidget(lightsLabel);
+	globalLayout->addWidget(lightsComboBox);
+	connect(lightsComboBox, SIGNAL(activated(int)),this, SLOT(updateLights(int))); 
+
     QPushButton * bgColorButton  = new QPushButton ("Background Color", globalGroupBox);
     connect (bgColorButton, SIGNAL (clicked()) , this, SLOT (setBGColor()));
     globalLayout->addWidget (bgColorButton);

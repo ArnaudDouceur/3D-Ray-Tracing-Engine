@@ -18,6 +18,7 @@
 #include <vector>
 #include <string>
 
+#include "Light.h"
 #include "QTUtils.h"
 #include "GLViewer.h"
 
@@ -35,7 +36,8 @@ public:
         virtual ~Window();
 
         static void showStatusMessage (const QString & msg);
-        inline unsigned int getFlags() { return flags; }         
+        inline const unsigned int getFlags() const { return flags; }
+        inline const unsigned int getLights() const { return lightChoice; }        
 
 public slots :
         void displayTime (QTime);
@@ -43,6 +45,7 @@ public slots :
         void updateAO (int value);
         void enableAA (bool);
         void updateAA (int value);
+        void updateLights (int type);
         void renderRayImage ();
         void setBGColor ();
         void exportGLImage ();
@@ -65,6 +68,7 @@ private:
         QImage rayImage;
         QLabel* timeDisplayLabel;
         QProgressBar * renderBar;
+        unsigned int lightChoice;
         unsigned int flags;
 };
 

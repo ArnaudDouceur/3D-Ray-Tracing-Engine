@@ -44,6 +44,7 @@ public:
                    float aspectRatio,
                    unsigned int screenWidth,
                    unsigned int screenHeight,
+                   unsigned int lightChoice,
                    unsigned int flags);
 signals:
 	void renderDone(QTime time);
