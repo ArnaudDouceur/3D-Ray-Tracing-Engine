@@ -9,7 +9,7 @@
 
 // define RAM, ARMADILLO or HUMAN
 #define RAM
-
+#define ALIGHT_RADIUS 1.f
 
 using namespace std;
 
@@ -46,7 +46,32 @@ void Scene::updateBoundingBox () {
     }
 }
 
-// Changer ce code pour créer des scènes originales
+void Scene::setLights(unsigned int lightChoice)
+{
+    lights.clear();
+    Light* l;
+
+    switch (lightChoice)
+    {
+        case POINT_LIGHT:
+            //l = new Light (Vec3Df (3.0f, 3.0f, 3.0f), Vec3Df (1.0f, 1.0f, 1.0f), 1.0f);
+            l = new Light (Vec3Df (3.0f, -3.0f, 3.0f), Vec3Df (1.0f, 1.0f, 1.0f), 1.0f);
+            lights.push_back (l);
+
+            break;
+        case AREA_LIGHT:
+            l = new AreaLight(Vec3Df (2.0f, -2.0f, 2.0f), Vec3Df (1.f, 1.f, 1.f), 1.f, Vec3Df (2.f, 2.f, -2.f), ALIGHT_RADIUS);
+            lights.push_back (l);
+
+            break;
+        default:
+            std::cerr << "Somebody switched the lights off..." << std::endl;
+    }
+
+}
+
+
+// TODO find nicer scenes if possible
 void Scene::buildDefaultScene (bool HD) {
 #ifdef RAM    
     Mesh groundMesh;
@@ -66,6 +91,19 @@ void Scene::buildDefaultScene (bool HD) {
     Material ramMat (1.f, 1.f, 128.f, Vec3Df (1.f, .6f, .2f));
     Object ram (ramMesh, ramMat);    
     objects.push_back (ram);
+
+    // More objects
+    // ram to the left and slightly behind
+    Mesh ram_lbMesh;
+    ram_lbMesh.loadOFF ("models/ram_lb.off");
+    Object ram_lb (ram_lbMesh, groundMat);
+    objects.push_back (ram_lb);
+
+    // ram to the right and slightly behind
+    Mesh ram_rbMesh;
+    ram_rbMesh.loadOFF ("models/ram_rb.off");
+    Object ram_rb (ram_rbMesh, groundMat);
+    objects.push_back (ram_rb);
 #endif
 #ifdef ARMADILLO
     Mesh armadilloMesh;
@@ -81,7 +119,8 @@ void Scene::buildDefaultScene (bool HD) {
     Object human (humanMesh, humanMat);    
     objects.push_back (human);
 #endif
-
+    //setLights (AREA_LIGHT);
+/*
 #ifdef RAM
     AreaLight* al1 = new AreaLight(Vec3Df (2.0f, -0.5f, 4.0f), Vec3Df (1.f, 1.f, 1.f), 1.f, Vec3Df (-2.f, 0.5f, -4.f), 1.f);
     lights.push_back (al1);
@@ -90,7 +129,8 @@ void Scene::buildDefaultScene (bool HD) {
 
 #endif
 #if defined (HUMAN) || defined (ARMADILLO)
-    Light l2 (Vec3Df (103.0f, 103.0f, 103.0f), Vec3Df (1.0f, 1.0f, 1.0f), 2.5f);
+    Light* l2 = new Light (Vec3Df (103.0f, 103.0f, 103.0f), Vec3Df (1.0f, 1.0f, 1.0f), 2.5f);
     lights.push_back (l2);
 #endif
+*/
 }

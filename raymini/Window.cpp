@@ -66,6 +66,9 @@ Window::Window () : QMainWindow (NULL) {
     addDockWidget (Qt::RightDockWidgetArea, controlDockWidget);
     controlDockWidget->setFeatures (QDockWidget::AllDockWidgetFeatures);
 
+    lightChoice = POINT_LIGHT;
+    flags = NONE;
+
     setMinimumWidth (800);
     setMinimumHeight (400);
 }
@@ -86,9 +89,29 @@ void Window::displayTime (QTime time)
 	emit updateTime("       "+min.toString()+" min "+sec.toString()+" s "+milli.toString());
 }
 
-void Window::setAO (bool ao)
+void Window::enableAO (bool ao)
 {
-    
+    ao? flags |= ENABLE_AO : flags &= ~ENABLE_AO;
+}
+
+void Window::updateAO(int value) 
+{
+    RayTracer::AO_RAY_COUNT = value;
+}
+
+void Window::enableAA (bool aa)
+{
+    aa? flags |= ENABLE_AA : flags &= ~ENABLE_AA;
+}
+
+void Window::updateAA(int value)
+{
+    RayTracer::ANTIALIASING_RES = value;
+}
+
+void Window::updateLights (int type)
+{
+        lightChoice = type;
 }
 
 void Window::renderRayImage () {
@@ -108,7 +131,7 @@ void Window::renderRayImage () {
     unsigned int screenWidth = cam->screenWidth ();
     unsigned int screenHeight = cam->screenHeight ();
     rayImage = rayTracer->render (camPos, viewDirection, upVector, rightVector,
-                                  fieldOfView, aspectRatio, screenWidth, screenHeight);
+                              fieldOfView, aspectRatio, screenWidth, screenHeight, lightChoice, flags);
     imageLabel->setPixmap (QPixmap::fromImage (rayImage));
     
 }
@@ -184,16 +207,26 @@ void Window::initControlWidget () {
 
     /** Render options
      */
-    QCheckBox * AOCheckBox = new QCheckBox ("Ambient Oclusion", rayGroupBox);
-    connect (AOCheckBox, SIGNAL (toggled (bool)), this, SLOT (setAO (bool)));
+    QCheckBox * AOCheckBox = new QCheckBox ("Ambient Occlusion", rayGroupBox);
+    connect (AOCheckBox, SIGNAL (toggled (bool)), this, SLOT (enableAO (bool)));
     rayLayout->addWidget (AOCheckBox);
+    QSlider* AOSlider = new QSlider(Qt::Horizontal);
+	rayLayout->addWidget(AOSlider);
+    connect (AOCheckBox, SIGNAL (toggled(bool)), AOSlider, SLOT(setVisible(bool)));
+    AOSlider->setRange(0,64);
+	AOSlider->setVisible(false);
+    connect (AOSlider, SIGNAL (valueChanged(int)), this, SLOT(updateAO(int)));
 
 
-    /** Render Button
-     */
-    QPushButton * rayButton = new QPushButton ("Render", rayGroupBox);
-    rayLayout->addWidget (rayButton);
-    connect (rayButton, SIGNAL (clicked ()), this, SLOT (renderRayImage ()));
+    QCheckBox * AACheckBox = new QCheckBox ("Anti Aliasing", rayGroupBox);
+    connect (AACheckBox, SIGNAL (toggled (bool)), this, SLOT (enableAA (bool)));
+    rayLayout->addWidget (AACheckBox);
+    QSlider* AASlider = new QSlider(Qt::Horizontal);
+	rayLayout->addWidget(AASlider);
+    connect (AACheckBox, SIGNAL (toggled(bool)), AASlider, SLOT(setVisible(bool)));
+	AASlider->setRange(1,8);
+	AASlider->setVisible(false);
+    connect (AASlider, SIGNAL (valueChanged(int)), this, SLOT(updateAA(int)));
 
     
      /** Render Progress Bar
@@ -212,6 +245,13 @@ void Window::initControlWidget () {
 	rayLayout->addWidget(timeLabel);
 	rayLayout->addWidget(timeDisplayLabel);	
 	connect(this,SIGNAL(updateTime(QString)),timeDisplayLabel,SLOT(setText(QString)));
+
+     /** Render Button
+     */
+    QPushButton * rayButton = new QPushButton ("Render", rayGroupBox);
+    rayLayout->addWidget (rayButton);
+    connect (rayButton, SIGNAL (clicked ()), this, SLOT (renderRayImage ()));
+
     /** Save Button
      */
     QPushButton * saveButton  = new QPushButton ("Save", rayGroupBox);
@@ -228,6 +268,17 @@ void Window::initControlWidget () {
     QGroupBox * globalGroupBox = new QGroupBox ("Global Settings", controlWidget);
     QVBoxLayout * globalLayout = new QVBoxLayout (globalGroupBox);
     
+    /**
+     * Lights
+     */
+	QLabel* lightsLabel = new QLabel("Lights");
+    QComboBox* lightsComboBox = new QComboBox;
+	lightsComboBox->addItem("Point Light");
+	lightsComboBox->addItem("Area Light");
+	globalLayout->addWidget(lightsLabel);
+	globalLayout->addWidget(lightsComboBox);
+	connect(lightsComboBox, SIGNAL(activated(int)),this, SLOT(updateLights(int))); 
+
     QPushButton * bgColorButton  = new QPushButton ("Background Color", globalGroupBox);
     connect (bgColorButton, SIGNAL (clicked()) , this, SLOT (setBGColor()));
     globalLayout->addWidget (bgColorButton);

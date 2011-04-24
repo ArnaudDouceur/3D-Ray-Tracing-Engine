@@ -16,7 +16,7 @@
 #include "AreaLight.h"
 #include "BoundingBox.h"
 
-class Scene {
+class Scene  {
 public:
     static Scene * getInstance ();
     static void destroyInstance ();
@@ -29,6 +29,8 @@ public:
     
     inline const BoundingBox & getBoundingBox () const { return bbox; }
     void updateBoundingBox ();
+    void setLights (unsigned int lightChoice);
+
  
 protected:
     Scene ();
