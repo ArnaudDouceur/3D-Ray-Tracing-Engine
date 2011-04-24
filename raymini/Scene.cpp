@@ -54,12 +54,13 @@ void Scene::setLights(unsigned int lightChoice)
     switch (lightChoice)
     {
         case POINT_LIGHT:
-            l = new Light (Vec3Df (3.0f, 3.0f, 3.0f), Vec3Df (1.0f, 1.0f, 1.0f), 1.0f);
+            //l = new Light (Vec3Df (3.0f, 3.0f, 3.0f), Vec3Df (1.0f, 1.0f, 1.0f), 1.0f);
+            l = new Light (Vec3Df (3.0f, -3.0f, 3.0f), Vec3Df (1.0f, 1.0f, 1.0f), 1.0f);
             lights.push_back (l);
 
             break;
         case AREA_LIGHT:
-            l = new AreaLight(Vec3Df (2.0f, -0.5f, 4.0f), Vec3Df (1.f, 1.f, 1.f), 1.f, Vec3Df (-2.f, 0.5f, -4.f), ALIGHT_RADIUS);
+            l = new AreaLight(Vec3Df (2.0f, -2.0f, 2.0f), Vec3Df (1.f, 1.f, 1.f), 1.f, Vec3Df (2.f, 2.f, -2.f), ALIGHT_RADIUS);
             lights.push_back (l);
 
             break;
@@ -90,6 +91,19 @@ void Scene::buildDefaultScene (bool HD) {
     Material ramMat (1.f, 1.f, 128.f, Vec3Df (1.f, .6f, .2f));
     Object ram (ramMesh, ramMat);    
     objects.push_back (ram);
+
+    // More objects
+    // ram to the left and slightly behind
+    Mesh ram_lbMesh;
+    ram_lbMesh.loadOFF ("models/ram_lb.off");
+    Object ram_lb (ram_lbMesh, groundMat);
+    objects.push_back (ram_lb);
+
+    // ram to the right and slightly behind
+    Mesh ram_rbMesh;
+    ram_rbMesh.loadOFF ("models/ram_rb.off");
+    Object ram_rb (ram_rbMesh, groundMat);
+    objects.push_back (ram_rb);
 #endif
 #ifdef ARMADILLO
     Mesh armadilloMesh;
