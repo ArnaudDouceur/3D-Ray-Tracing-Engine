@@ -10,10 +10,11 @@
 #include "Triangle.h"
 #include "Vertex.h"
 #include "KdTree.h"
+#include <string>
 
 #define EPSILON 0.001
 
-bool Light::isVisible(Vec3Df & point, Vec3Df & dir, std::vector<Object> & objects)
+bool Light::isVisible(const Vec3Df & point, const Vec3Df & dir, std::vector<Object> & objects)
 {
     Ray sray = Ray(point+EPSILON*dir, dir);
     Triangle foundTriangle;
@@ -32,8 +33,12 @@ bool Light::isVisible(Vec3Df & point, Vec3Df & dir, std::vector<Object> & object
     return true;
 }
 
-float Light::getVisibility (Vec3Df & point, Vec3Df & dir, std::vector<Object> & objects)
+float Light::getVisibility (const Vec3Df & point, const Vec3Df & dir, std::vector<Object> & objects)
 {
     return isVisible(point, dir, objects)? 1.0f : 0.0f; 
+}
+
+bool Light::sample(const Vec3Df& fromPoint, const Vec3Df& fromNormal, Vec3Df& intensity_given, Vec3Df& incidence,  std::vector<Object> & objects) {
+    throw std::string("Only area lights are supported by Path Tracing so far");
 }
 

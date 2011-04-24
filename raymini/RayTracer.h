@@ -16,6 +16,7 @@
 #include "Vec3D.h"
 #include "Material.h"
 #include "Scene.h"
+#include "Ray.h"
 
 class RayTracer : public QObject {
     Q_OBJECT
@@ -36,6 +37,7 @@ public:
                    float aspectRatio,
                    unsigned int screenWidth,
                    unsigned int screenHeight);
+	
 signals:
 	void renderDone(QTime time);
     void init (int min, unsigned int max);
@@ -48,6 +50,13 @@ protected:
     
 private:
     Vec3Df backgroundColor;
+	Vec3Df pathtrace(Ray& ray, unsigned int depth);
+	bool russianRoulette(const float& weight, double& survivorMult);
+	bool glossyRussianRoulette(const float& kS, const float& kD, double& survivorMult);
+	Vec3Df directIllumination(const struct IntersectionStruct & intersection, const Ray & ray);
+	Vec3Df specularInterreflect(Ray& ray, const struct IntersectionStruct& intersection, int depth);
+	Vec3Df diffuseInterreflect(Ray& ray, const struct IntersectionStruct&, int depth);
+	Vec3Df inline reflect(const Vec3Df& dir, const Vec3Df& normal);
 };
 
 

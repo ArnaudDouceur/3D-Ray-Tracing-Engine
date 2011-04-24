@@ -155,3 +155,15 @@ bool Ray::intersect (const KdTree & K, const vector<Vertex>& V, Triangle & trian
         return true;
     else return intersect (*far, V, triangle, p, t, u, v);        
 }
+
+void Ray::shuffleInHemisphere() {
+	float r0 = (double (rand()) - (double)RAND_MAX/2)/(double)RAND_MAX ;
+	float r1 = (double (rand()) - (double)RAND_MAX/2)/(double)RAND_MAX ;
+	float r2 = (double (rand()) - (double)RAND_MAX/2)/(double)RAND_MAX ;
+	Vec3Df dRay (r0, r1, r2);
+	dRay.normalize ();
+	if (Vec3Df::dotProduct (dRay, direction) < 0.f)
+		dRay = -dRay;
+	direction = dRay;
+    origin = origin + 0.0001*direction;
+}

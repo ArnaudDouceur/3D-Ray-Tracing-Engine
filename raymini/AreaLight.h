@@ -26,7 +26,9 @@ public:
     inline void setRadius(float _radius) { radius = _radius; }
     inline void setResolution(int res) { resolution = (res > 0) ? res : -res; }
     
-    virtual float getVisibility(Vec3Df & point, Vec3Df & dir, std::vector<Object> & objects);
+	virtual bool sample(const Vec3Df& fromPoint, const Vec3Df& fromNormal, Vec3Df& intensity_given, Vec3Df& incidence,  std::vector<Object> & objects);
+	
+    virtual float getVisibility(const Vec3Df & point, const Vec3Df & dir, std::vector<Object> & objects);
 
 private:
     Vec3Df direction;
