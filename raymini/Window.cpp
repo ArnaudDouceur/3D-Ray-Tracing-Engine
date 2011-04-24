@@ -66,7 +66,7 @@ Window::Window () : QMainWindow (NULL) {
     addDockWidget (Qt::RightDockWidgetArea, controlDockWidget);
     controlDockWidget->setFeatures (QDockWidget::AllDockWidgetFeatures);
 
-    lightChoice = POINT_LIGHT;
+    lightChoice = AREA_LIGHT;
     flags = NONE;
 
     setMinimumWidth (800);
