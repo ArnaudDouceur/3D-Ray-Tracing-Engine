@@ -273,8 +273,8 @@ void Window::initControlWidget () {
      */
 	QLabel* lightsLabel = new QLabel("Lights");
     QComboBox* lightsComboBox = new QComboBox;
+    lightsComboBox->addItem("Area Light");
 	lightsComboBox->addItem("Point Light");
-	lightsComboBox->addItem("Area Light");
 	globalLayout->addWidget(lightsLabel);
 	globalLayout->addWidget(lightsComboBox);
 	connect(lightsComboBox, SIGNAL(activated(int)),this, SLOT(updateLights(int))); 

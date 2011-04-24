@@ -14,8 +14,8 @@
 #include "Vec3D.h"
 #include "Object.h"
 
-#define POINT_LIGHT 0
-#define AREA_LIGHT  1
+#define POINT_LIGHT 1
+#define AREA_LIGHT  0
 
 class Light {
     public:
