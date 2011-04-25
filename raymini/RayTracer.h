@@ -65,6 +65,7 @@ private:
 	Vec3Df directIllumination(const struct IntersectionStruct & intersection, const Ray & ray);
 	Vec3Df specularInterreflect(Ray& ray, const struct IntersectionStruct& intersection, int depth);
 	Vec3Df diffuseInterreflect(const struct IntersectionStruct&, int depth);
+	Vec3Df mirrorInterreflect(const struct IntersectionStruct & intersection, Ray & ray, int depth);
 	Vec3Df inline reflect(const Vec3Df& dir, const Vec3Df& normal);
 };
 

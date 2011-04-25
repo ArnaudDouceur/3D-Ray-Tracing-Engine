@@ -19,7 +19,7 @@ int RayTracer::ANTIALIASING_RES = 2;
 #define USE_PATH_TRACING_ENGINE 1
 #define INDIRECT_ILLUMINATION 0
 #define SQRT_PATHS_PER_PIXEL 16
-#define USE_LENSE 1
+#define USE_LENSE 0
 #define LENSE_SIZE 0.2f
 
 RayTracer * RayTracer::getInstance () {
@@ -374,24 +374,31 @@ Vec3Df RayTracer::pathtrace(Ray& ray, unsigned int depth)
 			return pointColor;
 	}
     
-    // Direct illumination
-	pointColor += directIllumination(closestIntersection, ray_intersection);
-
-    #if INDIRECT_ILLUMINATION == 1
-	// DIFFUSE OBJECTS, Indirect Illumination
-	if (material.getSpecular() == 0)
-		pointColor += survival * diffuseInterreflect(closestIntersection, depth);
-
-	// GLOSSY OBJECTS, Indirect Illumination
-    else
-	{
-		double rrMult;
-		if (glossyRussianRoulette(material.getSpecular(), material.getDiffuse(), rrMult))
-			pointColor += survival * (1.0/(1-1.0/rrMult)) * diffuseInterreflect(closestIntersection, depth);
-		else
-		    pointColor += survival * rrMult * specularInterreflect(ray, closestIntersection, depth);
+    // Mirror
+    if (material.getMirror() > 0) {
+        pointColor += survival * mirrorInterreflect(closestIntersection, ray_intersection, depth);
     }
-    #endif
+    // Diffuse (and specular)
+    else {
+        // Direct illumination
+    	pointColor += directIllumination(closestIntersection, ray_intersection);
+
+        #if INDIRECT_ILLUMINATION == 1
+    	// DIFFUSE OBJECTS, Indirect Illumination
+    	if (material.getSpecular() == 0)
+    		pointColor += survival * diffuseInterreflect(closestIntersection, depth);
+
+    	// GLOSSY OBJECTS, Indirect Illumination
+        else
+    	{
+    		double rrMult;
+    		if (glossyRussianRoulette(material.getSpecular(), material.getDiffuse(), rrMult))
+    			pointColor += survival * (1.0/(1-1.0/rrMult)) * diffuseInterreflect(closestIntersection, depth);
+    		else
+    		    pointColor += survival * rrMult * specularInterreflect(ray, closestIntersection, depth);
+        }
+        #endif
+    }
 
 	return pointColor;
 }
@@ -486,6 +493,25 @@ Vec3Df RayTracer::diffuseInterreflect(const struct IntersectionStruct& intersect
     diffColor[2] *= color[2];
 	// Probablity: 1/(2PI) -- (1/probability)*cos(theta)*brdf*radiancealongray
 	return 2 * Vec3Df::dotProduct(intersection.n, rayDir) * diffuse * diffColor;
+}
+
+Vec3Df RayTracer::mirrorInterreflect(const struct IntersectionStruct & intersection, Ray & ray, int depth)
+{
+	Scene * scene = Scene::getInstance ();
+    std::vector<Object> & objects = scene->getObjects();
+	Material & material = objects[intersection.object_id].getMaterial();
+    float mirror = material.getMirror();
+    Vec3Df color = material.getColor();
+
+    Ray mirrorRay(intersection.p, reflect(ray.getDirection(), intersection.n));
+	Vec3Df mirrorColor = pathtrace(mirrorRay, depth + 1);
+	
+	// I think this is the way the color of the material impacts the incoming light, to be double-checked.
+    mirrorColor[0] *= color[0];
+    mirrorColor[1] *= color[1];
+    mirrorColor[2] *= color[2];
+
+    return mirror*mirrorColor;
 }
 
 Vec3Df inline RayTracer::reflect(const Vec3Df& dir, const Vec3Df& normal)

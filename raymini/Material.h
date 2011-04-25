@@ -17,15 +17,18 @@
 
 class Material {
 public:
-    inline Material () : diffuse (0.8f), specular (0.2f), shininess (8.f), color (0.5f, 0.5f, 0.5f)  {}
+    inline Material () : diffuse (0.8f), specular (0.2f), shininess (8.f), color (0.5f, 0.5f, 0.5f), mirror(0.f)  {}
     inline Material (float diffuse, float specular, float shininess, const Vec3Df & color)
-        : diffuse (diffuse), specular (specular), shininess (shininess), color (color) {}
+        : diffuse (diffuse), specular (specular), shininess (shininess), color (color), mirror(0.f) {}
+	inline Material (const Vec3Df & color, float mirror)
+        : diffuse (0.f), specular (0.f), shininess (0.f), color (color), mirror(mirror) {}
     virtual ~Material () {}
 
     inline float getDiffuse () const { return diffuse; }
     inline float getSpecular () const { return specular; }
     inline float getShininess () const {return shininess; }
     inline Vec3Df getColor () const { return color; }
+    inline float getMirror () const { return mirror; }
 
     inline void setDiffuse (float d) { diffuse = d; }
     inline void setSpecular (float s) { specular = s; }
@@ -37,6 +40,7 @@ private:
     float specular;
     float shininess;
     Vec3Df color;
+	float mirror;
 };
 
 

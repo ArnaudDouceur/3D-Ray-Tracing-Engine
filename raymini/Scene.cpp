@@ -89,7 +89,9 @@ void Scene::buildDefaultScene (bool HD) {
         ramMesh.loadOFF ("models/ram_HD.off");
     else
         ramMesh.loadOFF ("models/ram.off");
-    Material ramMat (1.f, 1.f, 128.f, Vec3Df (1.f, .6f, .2f));
+    Material ramMatY (1.f, 1.f, 128.f, Vec3Df (1.f, .6f, .2f));
+    // Mirror effect
+    Material ramMat (Vec3Df(1.f,1.f,1.f), .7f);
     Object ram (ramMesh, ramMat);    
     objects.push_back (ram);
 
@@ -97,13 +99,13 @@ void Scene::buildDefaultScene (bool HD) {
     // ram to the left and slightly behind
     Mesh ram_lbMesh;
     ram_lbMesh.loadOFF ("models/ram_lb.off");
-    Object ram_lb (ram_lbMesh, groundMat);
+    Object ram_lb (ram_lbMesh, ramMatY);
     objects.push_back (ram_lb);
 
     // ram to the right and slightly behind
     Mesh ram_rbMesh;
     ram_rbMesh.loadOFF ("models/ram_rb.off");
-    Object ram_rb (ram_rbMesh, groundMat);
+    Object ram_rb (ram_rbMesh, ramMatY);
     objects.push_back (ram_rb);
 #endif
 #ifdef ARMADILLO
