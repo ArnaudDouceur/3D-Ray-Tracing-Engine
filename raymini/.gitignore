@@ -8,3 +8,4 @@ raymini.app
 Makefile
 *.xcodeproj
 Info.plist
+*.swo
