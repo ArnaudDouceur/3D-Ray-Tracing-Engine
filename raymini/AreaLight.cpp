@@ -49,6 +49,6 @@ bool AreaLight::sample(const Vec3Df& fromPoint, const Vec3Df& fromNormal, Vec3Df
 	//if (cosThetaOut < 0) cosThetaOut *= -1;
 	double geoFactor = cosThetaIn*cosThetaOut / (inlen*inlen);
 	// Probablity: 1/area.
-	intensity_given = geoFactor * 2 * M_PI * radius * intensity * color;
+	intensity_given = geoFactor * M_PI * radius * radius * intensity * color;
     return true;
 }
