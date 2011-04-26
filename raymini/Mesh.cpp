@@ -221,3 +221,22 @@ void Mesh::buildFromPoints(const vector<Vec3Df>& points, const vector<Triangle>&
 	triangles = t;
 	recomputeSmoothVertexNormals(0);
 }
+
+void Mesh::makeWall(Vec3Df bottomLeft, Vec3Df bottomRight, Vec3Df topLeft, Vec3Df topRight)
+{
+
+    vertices.resize(4);
+    triangles.resize(2);
+
+    vertices[0].setPos(bottomLeft);
+    vertices[1].setPos(bottomRight);
+    vertices[2].setPos(topLeft);
+    vertices[3].setPos(topRight);
+
+    triangles[0] = Triangle(0, 1, 2);
+    triangles[1] = Triangle(1, 3, 2); 
+
+
+    recomputeSmoothVertexNormals (0);
+}
+

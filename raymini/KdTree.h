@@ -75,6 +75,10 @@ public:
 		return triangles;
 	}
 
+    float calculateCostSAH (float splitPos);
+    void chooseSAH (const std::vector<Vec3Df> &V, const std::vector<Triangle> &T, unsigned int axis);
+
+
 	
     //TODO
 	//inline virtual ~KdTree();

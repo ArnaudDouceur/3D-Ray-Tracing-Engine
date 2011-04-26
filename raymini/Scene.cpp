@@ -50,13 +50,23 @@ void Scene::setLights(unsigned int lightChoice)
 {
     lights.clear();
     Light* l;
+    Light* l1;
+    Light* l2;
+    Light* l3;
 
     switch (lightChoice)
     {
         case POINT_LIGHT:
             //l = new Light (Vec3Df (3.0f, 3.0f, 3.0f), Vec3Df (1.0f, 1.0f, 1.0f), 1.0f);
-            l = new Light (Vec3Df (3.0f, -3.0f, 3.0f), Vec3Df (1.0f, 1.0f, 1.0f), 1.0f);
+            l = new Light (Vec3Df (0.0f, -10.0f, 5.0f), Vec3Df (1.0f, 1.0f, 1.0f), 1.0f);
             lights.push_back (l);
+           // l1 = new Light (Vec3Df (3.0f, -3.0f, 3.0f), Vec3Df (1.0f, 1.0f, 1.0f), 1.0f);
+           // lights.push_back (l1);
+            //l2 = new Light (Vec3Df (-10.0f, -10.0f, -10.0f), Vec3Df (1.0f, 1.0f, 1.0f), 1.0f);
+            //lights.push_back (l2);
+            //l3 = new Light (Vec3Df (3.0f, 3.0f, 3.0f), Vec3Df (1.0f, 1.0f, 1.0f), 1.0f);
+            //lights.push_back (l3);
+
 
             break;
         case AREA_LIGHT:
@@ -74,7 +84,8 @@ void Scene::setLights(unsigned int lightChoice)
 
 // TODO find nicer scenes if possible
 void Scene::buildDefaultScene (bool HD) {
-#ifdef RAM    
+#ifdef RAM
+   /*
     Mesh groundMesh;
     if (HD)
         groundMesh.loadOFF ("models/ground_HD.off");
@@ -83,7 +94,9 @@ void Scene::buildDefaultScene (bool HD) {
     Material groundMat;
     Object ground (groundMesh, groundMat);    
     objects.push_back (ground);
+*/
     
+    /*
     Mesh ramMesh;
     if (HD)
         ramMesh.loadOFF ("models/ram_HD.off");
@@ -92,7 +105,8 @@ void Scene::buildDefaultScene (bool HD) {
     Material ramMat (1.f, 1.f, 128.f, Vec3Df (1.f, .6f, .2f));
     Object ram (ramMesh, ramMat);    
     objects.push_back (ram);
-
+    */
+/*
     // More objects
     // ram to the left and slightly behind
     Mesh ram_lbMesh;
@@ -105,6 +119,54 @@ void Scene::buildDefaultScene (bool HD) {
     ram_rbMesh.loadOFF ("models/ram_rb.off");
     Object ram_rb (ram_rbMesh, groundMat);
     objects.push_back (ram_rb);
+    */
+    
+/*
+    // More objects
+    // sphere left
+    Mesh sphereLMesh;
+    sphereLMesh.loadOFF ("models/floor.off");
+    Material sphereMat (1.f, 1.f, 128.f, Vec3Df (1.f, .6f, .2f));    
+    Object sphereL (sphereLMesh, sphereMat);
+    objects.push_back (sphereL);
+*/
+    Mesh* wallRedMesh = new Mesh();
+    wallRedMesh->makeWall(Vec3Df(-2.f,-2.f,0.f), Vec3Df(-2.f,2.f, 0.f), Vec3Df(-2.f, -2.f, 3.f), Vec3Df(-2.f, 2.f, 3.f));
+    Material wallRedMat (1.f, 1.f, 128.f, Vec3Df (1.f, 0.f, 0.f));
+    
+    Object wallRed (*wallRedMesh, wallRedMat);
+    objects.push_back(wallRed);
+
+    Mesh* wallWhiteMesh = new Mesh();
+    wallWhiteMesh->makeWall(Vec3Df(-2.f,-2.f,0.f), Vec3Df(2.f,-2.f, 0.f), Vec3Df(-2.f, 2.f, 0.f), Vec3Df(2.f, 2.f, 0.f));
+    Material wallWhiteMat (1.f, 1.f, 128.f, Vec3Df (1.f, 1.f, 1.f));
+    
+    Object wallWhite (*wallWhiteMesh, wallWhiteMat);
+    objects.push_back(wallWhite);
+
+     Mesh* wallGreenMesh = new Mesh();
+    wallGreenMesh->makeWall(Vec3Df(2.f,-2.f,0.f), Vec3Df(2.f, -2.f, 3.f), Vec3Df(2.f,2.f, 0.f), Vec3Df(2.f, 2.f, 3.f));
+    Material wallGreenMat (1.f, 1.f, 128.f, Vec3Df (0.f, 1.f, 0.f));
+    
+    Object wallGreen (*wallGreenMesh, wallGreenMat);
+    objects.push_back(wallGreen);
+
+    Mesh* wallBlueMesh = new Mesh();
+    wallBlueMesh->makeWall(Vec3Df(-2.f,2.f,0.f), Vec3Df(2.f,2.f, 0.f), Vec3Df(-2.f, 2.f, 3.f), Vec3Df(2.f, 2.f, 3.f));
+    Material wallBlueMat (1.f, 1.f, 128.f, Vec3Df (0.f, 0.f, 1.f));
+    
+    Object wallBlue (*wallBlueMesh, wallBlueMat);
+    objects.push_back(wallBlue);
+
+
+    
+/*
+    // right sphere
+    Mesh sphereRMesh;
+    sphereRMesh.loadOFF ("models/sphereR.off");
+    Object sphereR (sphereRMesh, groundMat);
+    objects.push_back (sphereR);
+*/
 #endif
 #ifdef ARMADILLO
     Mesh armadilloMesh;
