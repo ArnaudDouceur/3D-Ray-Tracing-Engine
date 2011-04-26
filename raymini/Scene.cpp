@@ -97,12 +97,12 @@ void Scene::buildDefaultScene (bool HD) {
     objects.push_back (ground);
 */
     
-    /*
+    
     Mesh ramMesh;
     if (HD)
         ramMesh.loadOFF ("models/ram_HD.off");
     else
-        ramMesh.loadOFF ("models/ram.off");
+        ramMesh.loadOFF ("models/ramUp2.off");
     Material ramMatY (1.f, 1.f, 128.f, Vec3Df (1, 0, 0));
     // Mirror effect
     Material ramMat (Vec3Df(1.f,1.f,1.f), .7f);
@@ -110,16 +110,17 @@ void Scene::buildDefaultScene (bool HD) {
     ramMat2.setColor (Vec3Df(0,1,0));
     Object ram (ramMesh, ramMat2);    
     objects.push_back (ram);
-    */
-/*
+    
+
 
     // SPHERE
     Mesh sphereMesh;
     sphereMesh.makeSphere();
-    Object sphere(sphereMesh, ramMat);
+    Material sphereMat (Vec3Df(1.f,1.f,1.f), .7f);    
+    Object sphere(sphereMesh, sphereMat);
     objects.push_back(sphere);
     
-    
+   /* 
     // More objects
     // ram to the left and slightly behind
     Mesh ram_lbMesh;
