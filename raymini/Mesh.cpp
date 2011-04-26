@@ -221,3 +221,51 @@ void Mesh::buildFromPoints(const vector<Vec3Df>& points, const vector<Triangle>&
 	triangles = t;
 	recomputeSmoothVertexNormals(0);
 }
+
+void Mesh::makeSphere(unsigned int resolution) {
+    
+    clear ();
+    unsigned int vcount = resolution*resolution-2*resolution+2;
+	vertices.resize(vcount);
+	triangles.resize(2*resolution*resolution - 4*resolution);
+	static const float phiIncr = M_PI/resolution;
+	static const float thetaIncr = 2*M_PI/resolution;
+	unsigned int tindex = 0;
+	unsigned int offset = 0;
+	// Create first the two poles
+	vertices[vcount-2] = Vertex(Vec3Df(0,0,-1),Vec3Df(0,0,-1));
+	vertices[vcount-1] = Vertex(Vec3Df(0,0, 1),Vec3Df(0,0,-1));
+	
+	// Create sphere
+	for(unsigned int i = 1; i < resolution-1; i++) {
+		float phi = -M_PI/2 + i*phiIncr;
+		float z = sin(phi);
+		float r = cos(phi);
+		int index = 0;
+		for(unsigned int j=0; j < resolution; j++) {
+			float theta = j*thetaIncr;
+			vertices[offset+index] = Vertex(Vec3Df(r*cos(theta), r*sin(theta), z),Vec3Df(r*cos(theta), r*sin(theta), z));
+    		
+			// First circle is special because linking to south pole
+			if(i == 1) {
+				triangles[tindex++] = Triangle(vcount-2, (index+1)%resolution, index);
+			}
+			else {
+				triangles[tindex++] = Triangle(offset+index-resolution, offset+((index+1) % resolution)-resolution, offset+index); 
+				triangles[tindex++] = Triangle(offset+((index+1)%resolution), offset+index, offset+((1+index)%resolution)-resolution);
+
+                
+			}			
+			index++;
+		}
+		offset += resolution;	
+	}
+	// Let's put the cap
+	offset -= resolution; // Go back to back to previous circle
+	for(unsigned int u=0; u<resolution; u++) {
+		triangles[tindex++] = Triangle(vcount-1, offset+u, offset+((u+1)%resolution));
+        
+	}
+	// Rescale
+	recomputeSmoothVertexNormals(0);
+}

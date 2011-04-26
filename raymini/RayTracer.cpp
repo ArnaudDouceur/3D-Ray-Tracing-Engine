@@ -305,7 +305,8 @@ QImage RayTracer::render (const Vec3Df & camPos,
                     #if USE_LENSE == 1
                     Vec3Df end = camPos + focal_distance / Vec3Df::dotProduct(dir, camera_dir) * dir;
                     float theta = 2*M_PI*randf();
-                    Vec3Df begin = camPos + sin(theta)*LENSE_SIZE*upVector + cos(theta)*LENSE_SIZE*rightVector;
+                    float r = randf();
+                    Vec3Df begin = camPos + r*sin(theta)*LENSE_SIZE*upVector + r*cos(theta)*LENSE_SIZE*rightVector;
                     Vec3Df newDir = end - begin;
                     newDir.normalize();
                     Ray ray(begin, newDir);
@@ -370,7 +371,8 @@ Vec3Df RayTracer::pathtrace(Ray& ray, unsigned int depth)
 	double survival = 1.0;
 	if (depth > 2)
 	{
-		if (russianRoulette(material.getDiffuse() + material.getSpecular(), survival))
+		//if (russianRoulette(material.getDiffuse() + material.getSpecular(), survival))
+		if (russianRoulette(0.5, survival))
 			return pointColor;
 	}
     
@@ -385,17 +387,22 @@ Vec3Df RayTracer::pathtrace(Ray& ray, unsigned int depth)
 
         #if INDIRECT_ILLUMINATION == 1
     	// DIFFUSE OBJECTS, Indirect Illumination
-    	if (material.getSpecular() == 0)
+    	if (true or material.getSpecular() == 0)
     		pointColor += survival * diffuseInterreflect(closestIntersection, depth);
 
     	// GLOSSY OBJECTS, Indirect Illumination
         else
     	{
-    		double rrMult;
+    		double rrMult;/*
     		if (glossyRussianRoulette(material.getSpecular(), material.getDiffuse(), rrMult))
     			pointColor += survival * (1.0/(1-1.0/rrMult)) * diffuseInterreflect(closestIntersection, depth);
     		else
+    		    pointColor += survival * rrMult * specularInterreflect(ray, closestIntersection, depth);*/
+    		if(russianRoulette(0.5, rrMult))
+    		    pointColor += survival * rrMult * diffuseInterreflect(closestIntersection, depth);
+    		else
     		    pointColor += survival * rrMult * specularInterreflect(ray, closestIntersection, depth);
+    		    
         }
         #endif
     }
