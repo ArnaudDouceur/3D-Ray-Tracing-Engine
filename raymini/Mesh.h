@@ -39,6 +39,7 @@ public:
     KdTree *getKdTree() { return tree; }
     void setKdTree(KdTree *t) { tree = t; }
     void buildFromPoints(const std::vector<Vec3Df>& points, const std::vector<Triangle>& t);
+    void makeWall(Vec3Df bottomLeft, Vec3Df bottomRight, Vec3Df topLeft, Vec3Df topRight);
     void clear ();
     void clearGeometry ();
     void clearTopology ();
