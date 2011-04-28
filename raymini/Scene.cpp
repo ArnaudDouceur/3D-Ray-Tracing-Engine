@@ -85,34 +85,104 @@ void Scene::setLights(unsigned int lightChoice)
 // TODO find nicer scenes if possible
 void Scene::buildDefaultScene (bool HD) {
 #ifdef RAM
-   /*
+   
+    /** RAMS scene in a V shape **/
+    /**
+     * Ground
+     */
     Mesh groundMesh;
     if (HD)
         groundMesh.loadOFF ("models/ground_HD.off");
     else
-        groundMesh.loadOFF ("models/ground.off");
+        groundMesh.loadOFF ("models/groundWide.off");
     Material groundMat;
     groundMat.setColor(Vec3Df(1,1,1));
     Object ground (groundMesh, groundMat);    
     objects.push_back (ground);
-*/
-    
+
+    /**
+     * Chief Ram the foremost
+     */
+    Mesh ramChiefMesh;
+    ramChiefMesh.loadOFF("models/ramChief.off");
+    Material ramChiefMat (1.f, 1.f, 128.f, Vec3Df(1.f, 0.6f, 0.2f));
+    Object ramChief (ramChiefMesh, ramChiefMat);
+    objects.push_back(ramChief);
+
+    /**
+     * First line of 2 rams left and right behind chief
+     */
+    Mesh ramL1Mesh;
+    ramL1Mesh.loadOFF("models/ramL1.off");
+    Material ramMinionMat;
+    Object ramL1 (ramL1Mesh, ramMinionMat);
+    objects.push_back(ramL1);
+
+    Mesh ramR1Mesh;
+    ramR1Mesh.loadOFF("models/ramR1.off");
+    Object ramR1 (ramR1Mesh, ramMinionMat);
+    objects.push_back(ramR1);
+
+     /**
+     * Second line of 2 rams left and right behind chief
+     */
+    Mesh ramL2Mesh;
+    ramL2Mesh.loadOFF("models/ramL2.off");
+    Object ramL2 (ramL2Mesh, ramMinionMat);
+    objects.push_back(ramL2);
+
+    Mesh ramR2Mesh;
+    ramR2Mesh.loadOFF("models/ramR2.off");
+    Object ramR2 (ramR2Mesh, ramMinionMat);
+    objects.push_back(ramR2);
+
+
+     /**
+     * Third line of 2 rams left and right behind chief
+     */
+    Mesh ramL3Mesh;
+    ramL3Mesh.loadOFF("models/ramL3.off");
+    Object ramL3 (ramL3Mesh, ramMinionMat);
+    objects.push_back(ramL3);
+
+    Mesh ramR3Mesh;
+    ramR3Mesh.loadOFF("models/ramR3.off");
+    Object ramR3 (ramR3Mesh, ramMinionMat);
+    objects.push_back(ramR3);
+
+     /**
+     * Fourth line of 2 rams left and right behind chief
+     */
+    Mesh ramL4Mesh;
+    ramL4Mesh.loadOFF("models/ramL4.off");
+    Object ramL4 (ramL4Mesh, ramMinionMat);
+    objects.push_back(ramL4);
+
+    Mesh ramR4Mesh;
+    ramR4Mesh.loadOFF("models/ramR4.off");
+    Object ramR4 (ramR4Mesh, ramMinionMat);
+    objects.push_back(ramR4);
+
+
+
+
+    /*
     
     Mesh ramMesh;
     if (HD)
         ramMesh.loadOFF ("models/ram_HD.off");
     else
-        ramMesh.loadOFF ("models/ramUp2.off");
+        ramMesh.loadOFF ("models/ram.off");
     Material ramMatY (1.f, 1.f, 128.f, Vec3Df (1, 0, 0));
     // Mirror effect
     Material ramMat (Vec3Df(1.f,1.f,1.f), .7f);
     Material ramMat2;
-    ramMat2.setColor (Vec3Df(0,1,0));
+    //ramMat2.setColor (Vec3Df(0,1,0));
     Object ram (ramMesh, ramMat2);    
     objects.push_back (ram);
-    
+    */
 
-
+/*
     // SPHERE
     Mesh sphereMesh;
     sphereMesh.makeSphere();
@@ -120,7 +190,7 @@ void Scene::buildDefaultScene (bool HD) {
     Object sphere(sphereMesh, sphereMat);
     objects.push_back(sphere);
     
-   /* 
+   
     // More objects
     // ram to the left and slightly behind
     Mesh ram_lbMesh;
@@ -144,6 +214,7 @@ void Scene::buildDefaultScene (bool HD) {
     Object sphereL (sphereLMesh, sphereMat);
     objects.push_back (sphereL);
 */
+    /*
     Mesh* wallRedMesh = new Mesh();
     wallRedMesh->makeWall(Vec3Df(-2.f,-2.f,0.f), Vec3Df(-2.f,2.f, 0.f), Vec3Df(-2.f, -2.f, 3.f), Vec3Df(-2.f, 2.f, 3.f));
     Material wallRedMat (1.f, 1.f, 128.f, Vec3Df (1.f, 0.f, 0.f));
@@ -172,7 +243,7 @@ void Scene::buildDefaultScene (bool HD) {
     Object wallBlue (*wallBlueMesh, wallBlueMat);
     objects.push_back(wallBlue);
 
-
+*/
     
 /*
     // right sphere
