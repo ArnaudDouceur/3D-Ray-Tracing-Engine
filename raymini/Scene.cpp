@@ -94,7 +94,7 @@ void Scene::buildDefaultScene (bool HD) {
     if (HD)
         groundMesh.loadOFF ("models/ground_HD.off");
     else
-        groundMesh.loadOFF ("models/groundWide.off");
+        groundMesh.loadOFF ("models/groundBig.off");
     Material groundMat;
     groundMat.setColor(Vec3Df(1,1,1));
     Object ground (groundMesh, groundMat);    
@@ -113,13 +113,13 @@ void Scene::buildDefaultScene (bool HD) {
      * First line of 2 rams left and right behind chief
      */
     Mesh ramL1Mesh;
-    ramL1Mesh.loadOFF("models/ramL1.off");
+    ramL1Mesh.loadOFF("models/ramL1Deep.off");
     Material ramMinionMat;
     Object ramL1 (ramL1Mesh, ramMinionMat);
     objects.push_back(ramL1);
 
     Mesh ramR1Mesh;
-    ramR1Mesh.loadOFF("models/ramR1.off");
+    ramR1Mesh.loadOFF("models/ramR1Deep.off");
     Object ramR1 (ramR1Mesh, ramMinionMat);
     objects.push_back(ramR1);
 
@@ -127,12 +127,12 @@ void Scene::buildDefaultScene (bool HD) {
      * Second line of 2 rams left and right behind chief
      */
     Mesh ramL2Mesh;
-    ramL2Mesh.loadOFF("models/ramL2.off");
+    ramL2Mesh.loadOFF("models/ramL2Deep.off");
     Object ramL2 (ramL2Mesh, ramMinionMat);
     objects.push_back(ramL2);
 
     Mesh ramR2Mesh;
-    ramR2Mesh.loadOFF("models/ramR2.off");
+    ramR2Mesh.loadOFF("models/ramR2Deep.off");
     Object ramR2 (ramR2Mesh, ramMinionMat);
     objects.push_back(ramR2);
 
@@ -141,12 +141,12 @@ void Scene::buildDefaultScene (bool HD) {
      * Third line of 2 rams left and right behind chief
      */
     Mesh ramL3Mesh;
-    ramL3Mesh.loadOFF("models/ramL3.off");
+    ramL3Mesh.loadOFF("models/ramL3Deep.off");
     Object ramL3 (ramL3Mesh, ramMinionMat);
     objects.push_back(ramL3);
 
     Mesh ramR3Mesh;
-    ramR3Mesh.loadOFF("models/ramR3.off");
+    ramR3Mesh.loadOFF("models/ramR3Deep.off");
     Object ramR3 (ramR3Mesh, ramMinionMat);
     objects.push_back(ramR3);
 
@@ -154,12 +154,12 @@ void Scene::buildDefaultScene (bool HD) {
      * Fourth line of 2 rams left and right behind chief
      */
     Mesh ramL4Mesh;
-    ramL4Mesh.loadOFF("models/ramL4.off");
+    ramL4Mesh.loadOFF("models/ramL4Deep.off");
     Object ramL4 (ramL4Mesh, ramMinionMat);
     objects.push_back(ramL4);
 
     Mesh ramR4Mesh;
-    ramR4Mesh.loadOFF("models/ramR4.off");
+    ramR4Mesh.loadOFF("models/ramR4Deep.off");
     Object ramR4 (ramR4Mesh, ramMinionMat);
     objects.push_back(ramR4);
 
