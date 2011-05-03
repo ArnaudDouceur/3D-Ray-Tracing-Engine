@@ -1,0 +1,626 @@
+#LyX 1.6.9 created this file. For more info see http://www.lyx.org/
+\lyxformat 345
+\begin_document
+\begin_header
+\textclass article
+\begin_preamble
+\date{}
+\end_preamble
+\use_default_options true
+\language french
+\inputencoding auto
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\float_placement H
+\paperfontsize default
+\spacing single
+\use_hyperref true
+\pdf_bookmarks true
+\pdf_bookmarksnumbered false
+\pdf_bookmarksopen false
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks false
+\pdf_pdfborder true
+\pdf_colorlinks false
+\pdf_backref false
+\pdf_pdfusetitle true
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Projet INFSI 350 - RayMini
+\end_layout
+
+\begin_layout Author
+Arnaud Douceur
+\begin_inset Newline newline
+\end_inset
+
+Daniel Ross
+\end_layout
+
+\begin_layout Date
+Avril 2011
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage clearpage
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Liste des effets et techniques implémentés
+\end_layout
+
+\begin_layout Enumerate
+Intersection rayon-triangle
+\end_layout
+
+\begin_layout Enumerate
+BRDF de Phong
+\end_layout
+
+\begin_layout Enumerate
+Rendu multi-threads
+\end_layout
+
+\begin_layout Enumerate
+Kd-tree
+\end_layout
+
+\begin_layout Enumerate
+Ombres dures
+\end_layout
+
+\begin_layout Enumerate
+Ombres douces (source de lumière étendu en forme de disque)
+\end_layout
+
+\begin_layout Enumerate
+Ambient occlusion
+\end_layout
+
+\begin_layout Enumerate
+Anti-aliasing
+\end_layout
+
+\begin_layout Enumerate
+Pathtracing stochastique
+\end_layout
+
+\begin_layout Enumerate
+Focus
+\end_layout
+
+\begin_layout Enumerate
+Matériau mirroir
+\begin_inset Newpage clearpage
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Standard
+Le projet de 3D du module INFSI 350 proposait d'implémenter en C++ un moteur
+ de rendu en lancé de rayons (raytracing).
+ 
+\end_layout
+
+\begin_layout Standard
+Partant d'une interface graphique en Qt et d'une fenêtre de pré-visualisation
+ avec une scène 3D rendu via OpenGL, le but de ce projet était d'afficher
+ notre propre rendu de la scène.
+\end_layout
+
+\begin_layout Standard
+Pour cela, nous avons dans un premier temps implémenté l'éclairage direct
+ avec des effets tels que la BRDF de Phong, les ombres dures et douces,
+ l'ambient occlusion et l'anti-aliasing.
+ Dans un second temps, nous avons choisi d'implémenter le pathtracing stochastiq
+ue ainsi que des effets supplémentaires comme le focus et les matériaux
+ mirroirs.
+\end_layout
+
+\begin_layout Section
+Éclairage Direct
+\end_layout
+
+\begin_layout Subsection
+BRDF de Phong
+\end_layout
+
+\begin_layout Standard
+Afin d'implémenter une BRDF de Phong, nous avons rajouté une variable 
+\shape italic
+shininess
+\shape default
+ à la classe Materiel pour satisfaire à l'équation vu en cours :
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Formula $f\left(\omega_{i},\omega_{o}\right)=k_{d}\left(n\wedge\omega_{i}\right)+k_{s}\left(r\wedge\omega_{o}\right)^{S}$
+\end_inset
+
+ avec 
+\begin_inset Formula $r=2n\left(\omega_{i}\wedge n\right)-\omega_{i}$
+\end_inset
+
+ et 
+\begin_inset Formula $k_{d}$
+\end_inset
+
+, 
+\begin_inset Formula $k_{s}$
+\end_inset
+
+ et 
+\begin_inset Formula $S$
+\end_inset
+
+ les coefficients diffus, spéculaire et brillance.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename BRDF-Phong.png
+	scale 25
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+BRDF de Phong
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Ombres Dures
+\end_layout
+
+\begin_layout Standard
+À partir d'une source de lumière ponctuelle, nous avons défini une méthode
+ binaire qui ne colorie pas les pixels qui ne sont pas visibles et effectue
+ une BRDF de Phong sur les autres.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename Ombres-Dures.png
+	scale 25
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Ombres dures
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Ombres Douces
+\end_layout
+
+\begin_layout Standard
+Afin d'obtenir des ombres douces nous avons implémenté une classe AreaLight
+ qui étend la classe Light.
+ La lampe a une forme de disque.
+ Nous simulons ses effets, en comptabilisant un nombre 
+\begin_inset Formula $N$
+\end_inset
+
+ de rayons tirés aléatoirement dans la direction de la lumière.
+ Le ratio des rayons visibles pondère le résultat de la BRDF de Phong pour
+ obtenir l'effet escompté.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename Ombres-Douces.png
+	scale 25
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Ombres douces
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename path_tracing_no_indirect_illumination.png
+	scale 30
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Source de lumière étendue
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Ambient Occlusion
+\end_layout
+
+\begin_layout Standard
+L'ambient occlusion (ici sur un modèle rendu sans BRDF de Phong afin de
+ mettre en évidence l'apport de l'ambient occlusion) à été réalisé en considéran
+t la demi sphère, d'un rayon de 5% de la taille de la scène 3D, le long
+ de la normale avec un nombre 
+\begin_inset Formula $N$
+\end_inset
+
+de rayons.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename Ambient-Occlusion-Only.png
+	scale 25
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Ambient Occlusion
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Anti-aliasing
+\end_layout
+
+\begin_layout Standard
+Afin d'éviter le problème classique de crénelage, nous effectuons une moyenne
+ locale sur les pixels voisins.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename /Users/daniel/Desktop/anti-aliasing.png
+	scale 30
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Anti-aliasing
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage clearpage
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Éclairage Indirect
+\end_layout
+
+\begin_layout Subsection
+Pathtracing Stochastique
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename GI-Indirect-Illumination.png
+	scale 50
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Éclairage Global
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Matériaux mirroirs et effets de focus
+\end_layout
+
+\begin_layout Standard
+Les matériaux mirroir.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename bonus2.png
+	scale 50
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Matériau mirroir et effet de focus
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage clearpage
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Limites
+\end_layout
+
+\begin_layout Standard
+Ce paragraphe liste certains points qui pourraient être amélioré.
+\end_layout
+
+\end_body
+\end_document
