@@ -42,13 +42,7 @@ bool AreaLight::sample(const Vec3Df& fromPoint, const Vec3Df& fromNormal, Vec3Df
     
     if(not isVisible(fromPoint, incidence, objects))
         return false;
-
-	// Fill in intensity (weight by area, ingoin/outgoing angle, and distance squared)
-	double cosThetaIn = max(Vec3Df::dotProduct(fromNormal, incidence) / inlen, 0.f);
-	double cosThetaOut = max(Vec3Df::dotProduct(-incidence, direction) / inlen,  0.f);
-	//if (cosThetaOut < 0) cosThetaOut *= -1;
-	double geoFactor = cosThetaIn*cosThetaOut / (inlen*inlen);
-	// Probablity: 1/area.
-	intensity_given = geoFactor * M_PI * radius * radius * intensity * color;
+    
+    intensity_given = max(Vec3Df::dotProduct(-incidence, direction) / (inlen*inlen*inlen), 0.f) * intensity * color;
     return true;
 }
