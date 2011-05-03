@@ -17,6 +17,7 @@ HEADERS = Window.h \
           Object.h \
           Light.h \
           AreaLight.h \
+          SceneConfig.h \
           Scene.h \
           RayTracer.h \
           Ray.h

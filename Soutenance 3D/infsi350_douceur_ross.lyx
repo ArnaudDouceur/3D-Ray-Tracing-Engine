@@ -357,7 +357,7 @@ Ombres douces
 \begin_inset Float figure
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \align center
@@ -465,7 +465,7 @@ Afin d'éviter le problème classique de crénelage, nous effectuons une moyenne
 \begin_inset Float figure
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \align center
@@ -519,7 +519,7 @@ Pathtracing Stochastique
 \begin_inset Float figure
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \align center
@@ -569,7 +569,7 @@ Les matériaux mirroir.
 \begin_inset Float figure
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \align center
