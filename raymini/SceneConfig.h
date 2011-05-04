@@ -7,14 +7,15 @@
  *
  * Only change the first line.
  * Valid scene names are :
- *  ARMADILLO
  *  RAM
  *  RAM_ARMY
  *  RAM_IN_THE_BOX
+ *  TAURUS_IN_THE_BOX
+ *  ARMADILLO
  * 
  */
 
-#define RAM_IN_THE_BOX
+#define TAURUS_IN_THE_BOX
 
 void buildObjects(std::vector<Object> & objects, bool HD)
 {
@@ -170,6 +171,45 @@ void buildObjects(std::vector<Object> & objects, bool HD)
    // Mirror effect
    Object ram (ramMesh, ramMatY);    
    objects.push_back (ram);
+#endif
+
+#ifdef TAURUS_IN_THE_BOX
+ // BOX
+    Mesh* wallLeftMesh = new Mesh();
+    wallLeftMesh->makeWall(Vec3Df(-2.f,-2.f,0.f), Vec3Df(-2.f,2.f, 0.f), Vec3Df(-2.f, -2.f, 3.f), Vec3Df(-2.f, 2.f, 3.f));
+    Material wallLeftMat (1.f, 1.f, 128.f, Vec3Df (0.2, 0.2, 0.8));
+
+    Object wallLeft (*wallLeftMesh, wallLeftMat);
+    objects.push_back(wallLeft);
+
+    Mesh* wallGroundMesh = new Mesh();
+    wallGroundMesh->makeWall(Vec3Df(-2.f,-2.f,0.f), Vec3Df(2.f,-2.f, 0.f), Vec3Df(-2.f, 2.f, 0.f), Vec3Df(2.f, 2.f, 0.f));
+    Material wallGroundMat (1.f, 1.f, 128.f, Vec3Df (1.f, 1.f, 1.f));
+
+    Object wallGround (*wallGroundMesh, wallGroundMat);
+    objects.push_back(wallGround);
+
+    Mesh* wallRightMesh = new Mesh();
+    wallRightMesh->makeWall(Vec3Df(2.f,-2.f,0.f), Vec3Df(2.f, -2.f, 3.f), Vec3Df(2.f,2.f, 0.f), Vec3Df(2.f, 2.f, 3.f));
+    Material wallRightMat (1.f, 1.f, 128.f, Vec3Df (0.8, 0.2, 0.2));
+
+    Object wallRight (*wallRightMesh, wallRightMat);
+    objects.push_back(wallRight);
+
+    Mesh* wallBackMesh = new Mesh();
+    wallBackMesh->makeWall(Vec3Df(-2.f,2.f,0.f), Vec3Df(2.f,2.f, 0.f), Vec3Df(-2.f, 2.f, 3.f), Vec3Df(2.f, 2.f, 3.f));
+    Material wallBackMat (1.f, 1.f, 128.f, Vec3Df (0.2f, 0.8f, 0.2f));
+
+    Object wallBack (*wallBackMesh, wallBackMat);
+    objects.push_back(wallBack);
+
+    
+    //TAURUS
+    Mesh taurusMesh;
+    taurusMesh.loadOFF("models/taurus.off", Vec3Df(0.f, 0.f, 0.8f));
+	Material mirrorMat(Vec3Df(1,1,1), 0.8);    
+    Object taurus (taurusMesh, mirrorMat);
+    objects.push_back(taurus);
 #endif
 
 #ifdef ARMADILLO
