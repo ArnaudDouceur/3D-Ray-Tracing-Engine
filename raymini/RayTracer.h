@@ -60,12 +60,9 @@ protected:
 private:
     Vec3Df backgroundColor;
 	Vec3Df pathtrace(Ray& ray, unsigned int depth);
-	bool russianRoulette(const float& weight, double& survivorMult);
-	bool glossyRussianRoulette(const float& kS, const float& kD, double& survivorMult);
 	Vec3Df directIllumination(const struct IntersectionStruct & intersection, const Ray & ray);
-	Vec3Df specularInterreflect(Ray& ray, const struct IntersectionStruct& intersection, int depth);
-	Vec3Df diffuseInterreflect(const struct IntersectionStruct&, int depth);
-	Vec3Df mirrorInterreflect(const struct IntersectionStruct & intersection, Ray & ray, int depth);
+	Vec3Df bounceIllumination(const struct IntersectionStruct&, const Ray & ray, int depth);
+	Vec3Df mirrorReflect(const struct IntersectionStruct & intersection, Ray & ray, int depth);
 	Vec3Df inline reflect(const Vec3Df& dir, const Vec3Df& normal);
 };
 

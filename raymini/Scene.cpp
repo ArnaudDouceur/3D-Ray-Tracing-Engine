@@ -70,8 +70,13 @@ void Scene::setLights(unsigned int lightChoice)
             break;
         case AREA_LIGHT:
             //l = new AreaLight(Vec3Df (2.0f, -2.0f, 2.0f), Vec3Df (1.f, 1.f, 1.f), 1.f, Vec3Df (2.f, 2.f, -2.f), ALIGHT_RADIUS);
-            l = new AreaLight(Vec3Df (2.0f, -0.5f, 4.0f), Vec3Df (1.f, 1.f, 1.f), 1.f, Vec3Df (-2.f, 0.5f, -4.f), 1.f);
+            l = new AreaLight(Vec3Df (1, 1, 4), Vec3Df (1.f, 1.f, 1.f), 10, Vec3Df (0,0,-1), 1.f);
             lights.push_back (l);
+            l1 = new AreaLight(Vec3Df (-1, 1, 4), Vec3Df (1.f, 1.f, 1.f), 10, Vec3Df (0,0,-1), 1.f);
+            lights.push_back (l1);
+            l2 = new AreaLight(Vec3Df (0, -5, 2), Vec3Df (1.f, 1.f, 1.f), 100, Vec3Df (0,1,0), 2.f);
+            lights.push_back (l2);
+            
 
             break;
         default:
@@ -86,4 +91,5 @@ void Scene::buildDefaultScene (bool HD) {
 
     // Built from SceneConfig.h
     buildObjects (objects, HD);
+        
 }

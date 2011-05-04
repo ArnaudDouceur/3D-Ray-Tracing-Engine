@@ -13,14 +13,15 @@
 #include <time.h>
 
 static RayTracer * instance = NULL;
-int RayTracer::AO_RAY_COUNT = 64;
+int RayTracer::AO_RAY_COUNT = 32;
 int RayTracer::ANTIALIASING_RES = 2;
 
 #define USE_PATH_TRACING_ENGINE 1
-#define INDIRECT_ILLUMINATION 0
+#define INDIRECT_ILLUMINATION 1
+#define NUMBER_OF_BOUNCES 1
 #define SQRT_PATHS_PER_PIXEL 16
 #define USE_LENSE 0
-#define LENSE_SIZE 0.2f
+#define LENSE_SIZE 0.3f
 
 RayTracer * RayTracer::getInstance () {
     if (instance == NULL) {
@@ -60,13 +61,13 @@ inline int clamp (float f, int inf, int sup) {
     return (v < inf ? inf : (v > sup ? sup : v));
 }
 
-#if USE_PATH_TRACING_ENGINE == 0
-
 Vec3Df RayTracer::brdfPhong(const Vec3Df &omegaI, const Vec3Df &omega0, const Vec3Df &n, const Material &material) {
 
     Vec3Df R = n*Vec3Df::dotProduct(omegaI,n)*2-omegaI;
     return (material.getDiffuse()*Vec3Df::dotProduct(n,omegaI) + material.getSpecular()*pow(Vec3Df::dotProduct(R,omega0), material.getShininess()))*material.getColor();
 }
+
+#if USE_PATH_TRACING_ENGINE == 0
 
 QImage RayTracer::render (const Vec3Df & camPos,
         const Vec3Df & direction,
@@ -121,7 +122,7 @@ QImage RayTracer::render (const Vec3Df & camPos,
                     Vec3Df stepX = (float (i) + float(i_antialiasing)/ANTIALIASING_RES - screenWidth/2.f)/screenWidth * tanX * rightVector;
                     Vec3Df stepY = (float (j) + float(j_antialiasing)/ANTIALIASING_RES - screenHeight/2.f)/screenHeight * tanY * upVector;
                     Vec3Df step = stepX + stepY;
-                    Vec3Df dir = direction + step;
+                      dir = direction + step;
                     dir.normalize ();
                     Ray ray (camPos, dir);
                     struct IntersectionStruct intersection;
@@ -317,8 +318,8 @@ QImage RayTracer::render (const Vec3Df & camPos,
                     color += 255.f*pathtrace(ray, 0);
                 }
             }
-            // TODO: 256 factor is empirical. It's hack, we should fix that...
-            color = 256.f/SQRT_PATHS_PER_PIXEL/SQRT_PATHS_PER_PIXEL * color;
+            // 255 is an empirical factor depending on how bounded is the scene
+            color = 1.f/SQRT_PATHS_PER_PIXEL/SQRT_PATHS_PER_PIXEL * color;
             image.setPixel (i, (screenHeight-1)-j, qRgb (clamp (color[0], 0, 255),
                         clamp (color[1], 0, 255),
                         clamp (color[2], 0, 255)));
@@ -332,6 +333,7 @@ QImage RayTracer::render (const Vec3Df & camPos,
 
 Vec3Df RayTracer::pathtrace(Ray& ray, unsigned int depth)
 {
+
     struct IntersectionStruct intersection, closestIntersection;
     Scene * scene = Scene::getInstance ();
     std::vector<Object> & objects = scene->getObjects();
@@ -364,63 +366,23 @@ Vec3Df RayTracer::pathtrace(Ray& ray, unsigned int depth)
     closestIntersection.n = (1-closestIntersection.u-closestIntersection.v)*closestIntersection.n1;
     closestIntersection.n += closestIntersection.u*closestIntersection.n2 + closestIntersection.v*closestIntersection.n3;
     closestIntersection.n.normalize ();
-    
-	Vec3Df pointColor(0,0,0);
 
-	// Russian Roulette
-	double survival = 1.0;
-	if (depth > 2)
-	{
-		//if (russianRoulette(material.getDiffuse() + material.getSpecular(), survival))
-		if (russianRoulette(0.5, survival))
-			return pointColor;
-	}
-    
-    // Mirror
+    // Mirror Material
     if (material.getMirror() > 0) {
-        pointColor += survival * mirrorInterreflect(closestIntersection, ray_intersection, depth);
-    }
-    // Diffuse (and specular)
-    else {
-        // Direct illumination
-    	pointColor += directIllumination(closestIntersection, ray_intersection);
-
-        #if INDIRECT_ILLUMINATION == 1
-    	// DIFFUSE OBJECTS, Indirect Illumination
-    	if (true or material.getSpecular() == 0)
-    		pointColor += survival * diffuseInterreflect(closestIntersection, depth);
-
-    	// GLOSSY OBJECTS, Indirect Illumination
-        else
-    	{
-    		double rrMult;/*
-    		if (glossyRussianRoulette(material.getSpecular(), material.getDiffuse(), rrMult))
-    			pointColor += survival * (1.0/(1-1.0/rrMult)) * diffuseInterreflect(closestIntersection, depth);
-    		else
-    		    pointColor += survival * rrMult * specularInterreflect(ray, closestIntersection, depth);*/
-    		if(russianRoulette(0.5, rrMult))
-    		    pointColor += survival * rrMult * diffuseInterreflect(closestIntersection, depth);
-    		else
-    		    pointColor += survival * rrMult * specularInterreflect(ray, closestIntersection, depth);
-    		    
-        }
-        #endif
+        if (depth < NUMBER_OF_BOUNCES)
+            return mirrorReflect(closestIntersection, ray_intersection, depth);
+        return Vec3Df(0,0,0);
     }
 
-	return pointColor;
-}
-
-bool RayTracer::russianRoulette(const float& weight, double& survivorMult)
-{
-	survivorMult = 1.0/weight;
-    return (randf() > weight);
-}
-
-bool RayTracer::glossyRussianRoulette(const float& kS, const float& kD, double& survivorMult)
-{
-    double p = kS/(kS + kD);
-	survivorMult = 1.0/p;
-    return (randf() > p);
+    // Compute incoming light
+    Vec3Df light = directIllumination(closestIntersection, ray_intersection);
+    
+    #if INDIRECT_ILLUMINATION == 1
+    // Add the light coming from a random indirect source if depth is ok
+    if (depth < NUMBER_OF_BOUNCES)
+        light += bounceIllumination(closestIntersection, ray_intersection, depth);
+    #endif
+    return light;
 }
 
 Vec3Df RayTracer::directIllumination(const struct IntersectionStruct& intersection, const Ray & ray)
@@ -429,80 +391,42 @@ Vec3Df RayTracer::directIllumination(const struct IntersectionStruct& intersecti
     std::vector<Object> & objects = scene->getObjects();
     std::vector<Light*> & lights = scene->getLights();
 	Material & material = objects[intersection.object_id].getMaterial();
-    float diffuse = material.getDiffuse();
-    float specular = material.getSpecular();
-    Vec3Df color = material.getColor();
-    float shininess = material.getShininess();
     
-	Vec3Df pointColor(0,0,0);
+	Vec3Df light(0,0,0);
 
 	for (unsigned int i = 0; i < lights.size(); i++) {
 		Vec3Df intensity;
 		Vec3Df lightincidence;
 		if (lights[i]->sample(intersection.p, intersection.n, intensity, lightincidence, objects)) {
-			if (diffuse)
-				pointColor += (diffuse/M_PI) * intensity * color;
-			if (specular)
-			{
-                Vec3Df r = reflect(lightincidence,intersection.n);
-				r.normalize();
-				Vec3Df v = -ray.getDirection();
-				v.normalize();
-				pointColor += (specular*(shininess+1)/(2*M_PI)) * pow(Vec3Df::dotProduct(r,v), shininess) * intensity * color;
-			}
+			light += intensity * brdfPhong(lightincidence, -ray.getDirection(), intersection.n, material);
 		}
 	}
 
-	return pointColor;
+	return light;
 }
 
-Vec3Df RayTracer::specularInterreflect(Ray& ray, const struct IntersectionStruct& intersection, int depth)
+
+Vec3Df RayTracer::bounceIllumination(const struct IntersectionStruct& intersection, const Ray & ray, int depth)
 {
     Scene * scene = Scene::getInstance ();
     std::vector<Object> & objects = scene->getObjects();
 	Material & material = objects[intersection.object_id].getMaterial();
-    float specular = material.getSpecular();
-    Vec3Df color = material.getColor();
-    float shininess = material.getShininess();
-    
-	Vec3Df reflectDir = reflect(ray.getDirection(), intersection.n);
-	reflectDir.normalize();
-	
-	Ray specRay = Ray(intersection.p, reflectDir);
-    specRay.shuffleInHemisphere();
-    Vec3Df rayDir = specRay.getDirection();
-    
-    Vec3Df specColor = pathtrace(specRay, depth + 1);
-    // I think this is the way the color of the material impacts the incoming light, to be double-checked.
-    specColor[0] *= color[0];
-    specColor[1] *= color[1];
-    specColor[2] *= color[2];
-	// Probablity: 1/(2PI) -- (1/probability)*cos(theta)*brdf*radiancealongray
-	return pow(Vec3Df::dotProduct(rayDir,reflectDir), shininess) * Vec3Df::dotProduct(rayDir, intersection.n) * specular * (shininess+1) * specColor;	
-}
-
-Vec3Df RayTracer::diffuseInterreflect(const struct IntersectionStruct& intersection, int depth)
-{
-    Scene * scene = Scene::getInstance ();
-    std::vector<Object> & objects = scene->getObjects();
-	Material & material = objects[intersection.object_id].getMaterial();
-    float diffuse = material.getDiffuse();
-    Vec3Df color = material.getColor();
     
 	Ray diffRay = Ray(intersection.p, intersection.n);
 	diffRay.shuffleInHemisphere();    
 	Vec3Df rayDir = diffRay.getDirection();
     
-	Vec3Df diffColor = pathtrace(diffRay, depth + 1);
-	// I think this is the way the color of the material impacts the incoming light, to be double-checked.
-    diffColor[0] *= color[0];
-    diffColor[1] *= color[1];
-    diffColor[2] *= color[2];
-	// Probablity: 1/(2PI) -- (1/probability)*cos(theta)*brdf*radiancealongray
-	return 2 * Vec3Df::dotProduct(intersection.n, rayDir) * diffuse * diffColor;
+    Vec3Df brdf = brdfPhong(rayDir, -ray.getDirection(), intersection.n, material);
+	Vec3Df incoming = pathtrace(diffRay, depth + 1);
+
+    brdf[0] *= incoming[0];
+    brdf[1] *= incoming[1];
+    brdf[2] *= incoming[2];
+    
+	return  brdf;
 }
 
-Vec3Df RayTracer::mirrorInterreflect(const struct IntersectionStruct & intersection, Ray & ray, int depth)
+Vec3Df RayTracer::mirrorReflect(const struct IntersectionStruct & intersection, Ray & ray, int depth)
 {
 	Scene * scene = Scene::getInstance ();
     std::vector<Object> & objects = scene->getObjects();
@@ -513,7 +437,6 @@ Vec3Df RayTracer::mirrorInterreflect(const struct IntersectionStruct & intersect
     Ray mirrorRay(intersection.p, reflect(ray.getDirection(), intersection.n));
 	Vec3Df mirrorColor = pathtrace(mirrorRay, depth + 1);
 	
-	// I think this is the way the color of the material impacts the incoming light, to be double-checked.
     mirrorColor[0] *= color[0];
     mirrorColor[1] *= color[1];
     mirrorColor[2] *= color[2];
