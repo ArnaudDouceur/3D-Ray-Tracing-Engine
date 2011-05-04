@@ -134,7 +134,7 @@ void buildObjects(std::vector<Object> & objects, bool HD)
 
     Mesh* wallBackMesh = new Mesh();
     wallBackMesh->makeWall(Vec3Df(-2.f,2.f,0.f), Vec3Df(2.f,2.f, 0.f), Vec3Df(-2.f, 2.f, 3.f), Vec3Df(2.f, 2.f, 3.f));
-    Material wallBackMat (1.f, 1.f, 128.f, Vec3Df (1.f, 1.f, 1.f));
+    Material wallBackMat (1.f, 1.f, 128.f, Vec3Df (0.f, .6f, 0.f));
 
     Object wallBack (*wallBackMesh, wallBackMat);
     objects.push_back(wallBack);
@@ -154,7 +154,7 @@ void buildObjects(std::vector<Object> & objects, bool HD)
 
 	Mesh sphereMesh3;
 	sphereMesh3.loadOFF("models/sphere.off");
-	Material sphereMat2 (1.f, .7f, 128.f, Vec3Df (1,1,1));
+	Material sphereMat2 (1.f, 1.f, 128.f, Vec3Df (1,1,1));
 	//Material sphereMat (Vec3Df (1.f,1.f,1.f), 0.8f);     
 	Object sphere3(sphereMesh3, sphereMat2);
 	objects.push_back(sphere3);
