@@ -141,7 +141,7 @@ void buildObjects(std::vector<Object> & objects, bool HD)
 
     // SPHERE
     Mesh sphereMesh;
-    sphereMesh.loadOFF("models/sphere.off");
+    sphereMesh.loadOFF("models/sphere2.off");
     Material sphereMat (1.f, .7f, 128.f, Vec3Df (1,1,1));
     Object sphere (sphereMesh, sphereMat);
     objects.push_back(sphere);

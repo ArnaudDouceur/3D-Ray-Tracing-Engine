@@ -88,7 +88,7 @@ LatexCommand tableofcontents
 \end_layout
 
 \begin_layout Section
-Liste des effets et techniques implémentés
+État du projet
 \end_layout
 
 \begin_layout Enumerate
@@ -124,15 +124,15 @@ Anti-aliasing
 \end_layout
 
 \begin_layout Enumerate
-Pathtracing stochastique
-\end_layout
-
-\begin_layout Enumerate
 Focus
 \end_layout
 
 \begin_layout Enumerate
 Matériau mirroir
+\end_layout
+
+\begin_layout Enumerate
+Pathtracing
 \begin_inset Newpage clearpage
 \end_inset
 

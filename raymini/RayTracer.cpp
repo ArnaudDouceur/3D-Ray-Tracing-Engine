@@ -102,7 +102,6 @@ QImage RayTracer::render (const Vec3Df & camPos,
     {
         #pragma omp critical(progressupdate)
         {
-            //#pragma omp atomic
             progressValue++;
             emit progress (progressValue);
         }
@@ -169,7 +168,6 @@ QImage RayTracer::render (const Vec3Df & camPos,
                                 if (flags & ENABLE_AO)
                                 {
                                     Vec3Df p_epsilon = closestIntersection.p + 0.0001 * n;
-                                    //unsigned int rays_not_stopped = AMBIENT_OCCLUSION_RAY_COUNT;
                                     unsigned int rays_not_stopped = AO_RAY_COUNT;
                                     float AO = 0.f;
                                     float sumW = 0.f;
@@ -245,8 +243,8 @@ QImage RayTracer::render (const Vec3Df & camPos,
     
     #if USE_LENSE == 1
     
-    // We are going to shoot a ray in the middle of the screen and use it first
-    // intersection as distance for the focal plane.
+    // We are going to shoot a ray in the middle of the screen and use it's first
+    // intersection as the focal plane distance.
     
     Vec3Df camera_dir = Vec3Df::crossProduct(upVector, rightVector);    
     Ray mRay(camPos, camera_dir);
@@ -318,7 +316,7 @@ QImage RayTracer::render (const Vec3Df & camPos,
                     color += 255.f*pathtrace(ray, 0);
                 }
             }
-            // 255 is an empirical factor depending on how bounded is the scene
+            // 255 is an empirical factor depending on how bounded the scene is
             color = 1.f/SQRT_PATHS_PER_PIXEL/SQRT_PATHS_PER_PIXEL * color;
             image.setPixel (i, (screenHeight-1)-j, qRgb (clamp (color[0], 0, 255),
                         clamp (color[1], 0, 255),
