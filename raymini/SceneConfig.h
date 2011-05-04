@@ -111,41 +111,54 @@ void buildObjects(std::vector<Object> & objects, bool HD)
 
 #ifdef RAM_IN_THE_BOX
     // BOX
-    Mesh* wallRedMesh = new Mesh();
-    wallRedMesh->makeWall(Vec3Df(-2.f,-2.f,0.f), Vec3Df(-2.f,2.f, 0.f), Vec3Df(-2.f, -2.f, 3.f), Vec3Df(-2.f, 2.f, 3.f));
-    Material wallRedMat (1.f, 1.f, 128.f, Vec3Df (1.f, 0.f, 0.f));
+    Mesh* wallLeftMesh = new Mesh();
+    wallLeftMesh->makeWall(Vec3Df(-2.f,-2.f,0.f), Vec3Df(-2.f,2.f, 0.f), Vec3Df(-2.f, -2.f, 3.f), Vec3Df(-2.f, 2.f, 3.f));
+    Material wallLeftMat (1.f, 1.f, 128.f, Vec3Df (0.f, 0, 0.6f));
 
-    Object wallRed (*wallRedMesh, wallRedMat);
-    objects.push_back(wallRed);
+    Object wallLeft (*wallLeftMesh, wallLeftMat);
+    objects.push_back(wallLeft);
 
-    Mesh* wallWhiteMesh = new Mesh();
-    wallWhiteMesh->makeWall(Vec3Df(-2.f,-2.f,0.f), Vec3Df(2.f,-2.f, 0.f), Vec3Df(-2.f, 2.f, 0.f), Vec3Df(2.f, 2.f, 0.f));
-    Material wallWhiteMat (1.f, 1.f, 128.f, Vec3Df (1.f, 1.f, 1.f));
+    Mesh* wallGroundMesh = new Mesh();
+    wallGroundMesh->makeWall(Vec3Df(-2.f,-2.f,0.f), Vec3Df(2.f,-2.f, 0.f), Vec3Df(-2.f, 2.f, 0.f), Vec3Df(2.f, 2.f, 0.f));
+    Material wallGroundMat (1.f, 1.f, 128.f, Vec3Df (1.f, 1.f, 1.f));
 
-    Object wallWhite (*wallWhiteMesh, wallWhiteMat);
-    objects.push_back(wallWhite);
+    Object wallGround (*wallGroundMesh, wallGroundMat);
+    objects.push_back(wallGround);
 
-    Mesh* wallGreenMesh = new Mesh();
-    wallGreenMesh->makeWall(Vec3Df(2.f,-2.f,0.f), Vec3Df(2.f, -2.f, 3.f), Vec3Df(2.f,2.f, 0.f), Vec3Df(2.f, 2.f, 3.f));
-    Material wallGreenMat (1.f, 1.f, 128.f, Vec3Df (0.f, 1.f, 0.f));
+    Mesh* wallRightMesh = new Mesh();
+    wallRightMesh->makeWall(Vec3Df(2.f,-2.f,0.f), Vec3Df(2.f, -2.f, 3.f), Vec3Df(2.f,2.f, 0.f), Vec3Df(2.f, 2.f, 3.f));
+    Material wallRightMat (1.f, 1.f, 128.f, Vec3Df (.6, 0, 0));
 
-    Object wallGreen (*wallGreenMesh, wallGreenMat);
-    objects.push_back(wallGreen);
+    Object wallRight (*wallRightMesh, wallRightMat);
+    objects.push_back(wallRight);
 
-    Mesh* wallBlueMesh = new Mesh();
-    wallBlueMesh->makeWall(Vec3Df(-2.f,2.f,0.f), Vec3Df(2.f,2.f, 0.f), Vec3Df(-2.f, 2.f, 3.f), Vec3Df(2.f, 2.f, 3.f));
-    Material wallBlueMat (1.f, 1.f, 128.f, Vec3Df (0.f, 0.f, 1.f));
+    Mesh* wallBackMesh = new Mesh();
+    wallBackMesh->makeWall(Vec3Df(-2.f,2.f,0.f), Vec3Df(2.f,2.f, 0.f), Vec3Df(-2.f, 2.f, 3.f), Vec3Df(2.f, 2.f, 3.f));
+    Material wallBackMat (1.f, 1.f, 128.f, Vec3Df (1.f, 1.f, 1.f));
 
-    Object wallBlue (*wallBlueMesh, wallBlueMat);
-    objects.push_back(wallBlue);
+    Object wallBack (*wallBackMesh, wallBackMat);
+    objects.push_back(wallBack);
 
     // SPHERE
     Mesh sphereMesh;
-    sphereMesh.loadOFF("models/sphere2.off");
-    Material sphereMat (1.f, .7f, 128.f, Vec3Df (1,1,1));
+    sphereMesh.loadOFF("models/sphere0.5.off", Vec3Df(-1.2,1,1));
+	Material sphereMat(Vec3Df(1,1,1), 0.8);
     Object sphere (sphereMesh, sphereMat);
     objects.push_back(sphere);
 
+	// SPHERE
+    Mesh sphereMesh2;
+    sphereMesh2.loadOFF("models/sphere0.5.off", Vec3Df(1.2,1,1));
+    Object sphere2 (sphereMesh2, sphereMat);
+    objects.push_back(sphere2);
+
+	Mesh sphereMesh3;
+	sphereMesh3.loadOFF("models/sphere.off");
+	Material sphereMat2 (1.f, .7f, 128.f, Vec3Df (1,1,1));
+	//Material sphereMat (Vec3Df (1.f,1.f,1.f), 0.8f);     
+	Object sphere3(sphereMesh3, sphereMat2);
+	objects.push_back(sphere3);
+	
     // RAM
     Mesh ramMesh;
     if (HD)

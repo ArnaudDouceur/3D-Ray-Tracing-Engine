@@ -17,9 +17,9 @@ int RayTracer::AO_RAY_COUNT = 32;
 int RayTracer::ANTIALIASING_RES = 2;
 
 #define USE_PATH_TRACING_ENGINE 1
-#define INDIRECT_ILLUMINATION 1
+#define INDIRECT_ILLUMINATION 0
 #define NUMBER_OF_BOUNCES 2
-#define SQRT_PATHS_PER_PIXEL 32
+#define SQRT_PATHS_PER_PIXEL 4
 #define USE_LENSE 0
 #define LENSE_SIZE 0.3f
 
@@ -432,7 +432,7 @@ Vec3Df RayTracer::mirrorReflect(const struct IntersectionStruct & intersection, 
     float mirror = material.getMirror();
     Vec3Df color = material.getColor();
 
-    Ray mirrorRay(intersection.p, reflect(ray.getDirection(), intersection.n));
+    Ray mirrorRay(intersection.p-0.001*intersection.n, reflect(ray.getDirection(), intersection.n));
 	Vec3Df mirrorColor = pathtrace(mirrorRay, depth + 1);
 	
     mirrorColor[0] *= color[0];
