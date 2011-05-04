@@ -55,7 +55,7 @@ public:
     
     void renderGL (bool flat) const;
     
-    void loadOFF (const std::string & filename);
+    void loadOFF (const std::string & filename, const Vec3Df & shift=Vec3Df(0,0,0));
   
     class Exception {
     private: 
