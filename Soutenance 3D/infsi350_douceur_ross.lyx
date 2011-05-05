@@ -67,7 +67,15 @@ Arnaud Douceur
 Daniel Ross
 \end_layout
 
-\begin_layout Date
+\begin_layout Standard
+\align center
+Télécom ParisTech
+\end_layout
+
+\begin_layout Standard
+\align center
+
+\shape italic
 Avril 2011
 \end_layout
 
@@ -125,6 +133,38 @@ LatexCommand tableofcontents
 \end_layout
 
 \begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Standard
+Le projet de 3D du module INFSI350 proposait d'implémenter en C++ un moteur
+ de rendu en lancé de rayons (ray tracing).
+ 
+\end_layout
+
+\begin_layout Standard
+Partant d'une interface graphique en Qt et d'une fenêtre de pré-visualisation
+ avec une scène 3D rendue via OpenGL, le but de ce projet était d'afficher
+ notre propre rendu de la scène.
+\end_layout
+
+\begin_layout Standard
+Pour cela, nous avons dans un premier temps implémenté l'éclairage direct
+ avec des effets tels que la BRDF de Phong, les ombres dures et douces,
+ l'ambient occlusion et l'anti-aliasing.
+ Dans un second temps, nous avons choisi d'implémenter le path tracing ainsi
+ que des effets supplémentaires comme la profondeur de champ et les matériaux
+ mirroirs.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage clearpage
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
 Fonctionnalités implémentées
 \end_layout
 
@@ -141,7 +181,7 @@ Rendu multi-threads
 \end_layout
 
 \begin_layout Enumerate
-Kd-tree
+KD-Tree
 \end_layout
 
 \begin_layout Enumerate
@@ -149,7 +189,7 @@ Ombres dures
 \end_layout
 
 \begin_layout Enumerate
-Ombres douces (source de lumière étendu en forme de disque)
+Ombres douces (source de lumière étendue en forme de disque)
 \end_layout
 
 \begin_layout Enumerate
@@ -169,36 +209,14 @@ Profondeur de champ
 \end_layout
 
 \begin_layout Enumerate
-Pathtracing
+Path Tracing
+\end_layout
+
+\begin_layout Standard
 \begin_inset Newpage clearpage
 \end_inset
 
 
-\end_layout
-
-\begin_layout Section
-Introduction
-\end_layout
-
-\begin_layout Standard
-Le projet de 3D du module INFSI350 proposait d'implémenter en C++ un moteur
- de rendu en lancé de rayons (raytracing).
- 
-\end_layout
-
-\begin_layout Standard
-Partant d'une interface graphique en Qt et d'une fenêtre de pré-visualisation
- avec une scène 3D rendue via OpenGL, le but de ce projet était d'afficher
- notre propre rendu de la scène.
-\end_layout
-
-\begin_layout Standard
-Pour cela, nous avons dans un premier temps implémenté l'éclairage direct
- avec des effets tels que la BRDF de Phong, les ombres dures et douces,
- l'ambient occlusion et l'anti-aliasing.
- Dans un second temps, nous avons choisi d'implémenter le pathtracing ainsi
- que des effets supplémentaires comme la profondeur de champ et les matériaux
- mirroirs.
 \end_layout
 
 \begin_layout Section
@@ -289,8 +307,7 @@ Ombres Dures
 
 \begin_layout Standard
 À partir d'une source de lumière ponctuelle, nous avons défini une méthode
- binaire qui colorie les pixels qui sont visibles en effectuant une BRDF
- de Phong.
+ binaire qui colorie les pixels éclairés en effectuant une BRDF de Phong.
 \end_layout
 
 \begin_layout Standard
@@ -326,10 +343,6 @@ Ombres dures
 
 \end_layout
 
-\begin_layout Plain Layout
-
-\end_layout
-
 \end_inset
 
 
@@ -348,8 +361,8 @@ Afin d'obtenir des ombres douces nous avons implémenté une classe AreaLight
 \end_inset
 
  rayons dans la direction de la lumière.
- La proportion de rayons visible pondère le résultat de la BRDF de Phong
- afin d'obtenir l'effet escompté.
+ La proportion de rayons non obstrués pondère le résultat de la BRDF de
+ Phong afin d'obtenir l'effet escompté.
 \end_layout
 
 \begin_layout Standard
@@ -437,14 +450,17 @@ Ambient Occlusion
 \end_layout
 
 \begin_layout Standard
-L'ambient occlusion (ici sur un modèle rendu sans BRDF de Phong afin de
- mettre en évidence l'apport de l'ambient occlusion) à été réalisé en considéran
-t la demi sphère, d'un rayon de 5% de la taille de la scène 3D, le long
- de la normale avec un nombre de rayons 
+L'ambient occlusion (mis en avant sur la Figure 5 sans BRDF de Phong) à
+ été réalisé en considérant la demi sphère, d'un rayon de 5% de la taille
+ de la scène 3D, le long de la normale avec un nombre de rayons 
 \begin_inset Formula $N$
 \end_inset
 
-.
+ (
+\begin_inset Formula $N=64$
+\end_inset
+
+).
 \end_layout
 
 \begin_layout Standard
@@ -503,7 +519,7 @@ Afin d'éviter le problème classique de crénelage, nous calculons chaque
 \begin_inset Float figure
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \align center
@@ -538,6 +554,114 @@ Anti-aliasing
 
 \end_layout
 
+\begin_layout Standard
+\begin_inset Newpage clearpage
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Éclairage Indirect
+\end_layout
+
+\begin_layout Standard
+Nous avons fait le choix de la méthode path tracing pour l'éclairage global
+ de la scène.
+\end_layout
+
+\begin_layout Subsection
+Path Tracing
+\end_layout
+
+\begin_layout Standard
+Voici un petit extrait de scènes que nous trouvons sympathiques.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename 4096rpp:2bounces.png
+	scale 50
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Éclairage Global 1
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename 1024rpp:2bounces:20min.png
+	scale 50
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Éclairage Global 2
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Subsection
 Mirroir
 \end_layout
@@ -551,7 +675,7 @@ Bien que le projet ne le demandait pas explicitement, nous avons choisi
 \begin_inset Float figure
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \align center
@@ -597,7 +721,7 @@ Nous avons également implémenté un effet flou de profondeur.
 \begin_inset Float figure
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \align center
@@ -639,121 +763,13 @@ Armée de béliers
 \end_layout
 
 \begin_layout Section
-Éclairage Indirect
-\end_layout
-
-\begin_layout Standard
-Nous avons fait le choix de la méthode pathtracing pour l'éclairage global
- de la scène.
-\end_layout
-
-\begin_layout Subsection
-Pathtracing
-\end_layout
-
-\begin_layout Standard
-Voici un petit extrait de scènes que nous trouvons élégantes et sympathiques.
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\align center
-\begin_inset Graphics
-	filename 4096rpp:2bounces.png
-	scale 50
-
-\end_inset
-
-
-\begin_inset Newline newline
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-Éclairage Global 1
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\align center
-\begin_inset Graphics
-	filename 1024rpp:2bounces:20min.png
-	scale 50
-
-\end_inset
-
-
-\begin_inset Newline newline
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-Éclairage Global 2
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Newpage clearpage
-\end_inset
-
-
-\end_layout
-
-\begin_layout Section
 Limites
 \end_layout
 
 \begin_layout Standard
-Sans parler des fonctionnalités quasi-infinies que nous pourrions ajouter
- au moteur de rendu, ce paragraphe liste certains points qui pourraient
- être améliorés.
+Sans parler d'une liste de fonctionnalités quasi-infinie que nous pourrions
+ ajouter au moteur de rendu, ce paragraphe liste certains points qui pourraient
+ être améliorés, si nous avions eu plus de temps.
 \end_layout
 
 \begin_layout Itemize
@@ -793,6 +809,8 @@ La barre de progression du rendu : ne fait pas ce qu'elle est censé faire
 
 \begin_layout Itemize
 Il faudrait ajouter plus d'options pertinentes à l'interface Qt.
+ Notamment le chargement de scènes à la volée ou encore activer des options
+ telles que l'effet de profondeur.
 \end_layout
 
 \end_deeper
@@ -802,23 +820,25 @@ Chargement de fichier
 
 \begin_deeper
 \begin_layout Itemize
-Nous ne pouvons charger que des fichiers au format OFF.
+Nous ne pouvons que charger des fichiers au format OFF.
  Il pourrait être intéressant de créer un parseur pour les autres types
  de fichiers 3D.
 \end_layout
 
 \begin_layout Itemize
 Les primitives des maillages doivent exclusivement être des triangles.
+ Nous pourrions envisager la gestion des tétraèdres.
 \end_layout
 
 \end_deeper
 \begin_layout Itemize
-Chargement de la scène
+Matériaux
 \end_layout
 
 \begin_deeper
 \begin_layout Itemize
-Le choix de la scène 3D est précompilé.
+Ajouter les matériaux de type verre avec l'implémentation des effets de
+ réfraction.
 \end_layout
 
 \end_deeper
