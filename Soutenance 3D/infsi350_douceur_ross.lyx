@@ -80,7 +80,7 @@ status open
 \begin_layout Plain Layout
 \align center
 \begin_inset Graphics
-	filename 4096rpp:2bounces.png
+	filename 1024rpp:2bounces:20min.png
 	scale 50
 
 \end_inset
@@ -196,9 +196,9 @@ Partant d'une interface graphique en Qt et d'une fenêtre de pré-visualisation
 Pour cela, nous avons dans un premier temps implémenté l'éclairage direct
  avec des effets tels que la BRDF de Phong, les ombres dures et douces,
  l'ambient occlusion et l'anti-aliasing.
- Dans un second temps, nous avons choisi d'implémenter le pathtracing stochastiq
-ue ainsi que des effets supplémentaires comme la profondeur de champ et
- les matériaux mirroirs.
+ Dans un second temps, nous avons choisi d'implémenter le pathtracing ainsi
+ que des effets supplémentaires comme la profondeur de champ et les matériaux
+ mirroirs.
 \end_layout
 
 \begin_layout Section
@@ -214,7 +214,7 @@ Afin d'implémenter une BRDF de Phong, nous avons ajouté un attribut
 \shape italic
 shininess
 \shape default
- à la classe Materiel pour satisfaire à l'équation vu en cours :
+ à la classe Material pour satisfaire l'équation vu en cours :
 \begin_inset Newline newline
 \end_inset
 
@@ -343,13 +343,13 @@ Ombres Douces
 Afin d'obtenir des ombres douces nous avons implémenté une classe AreaLight
  qui étend la classe Light.
  La lampe a une forme de disque.
- Nous simulons ses effets, en comptabilisant un nombre 
+ Nous simulons ses effets, en tirant aléatoirement 
 \begin_inset Formula $N$
 \end_inset
 
- de rayons tirés aléatoirement dans la direction de la lumière.
- Le ratio des rayons visibles pondère le résultat de la BRDF de Phong pour
- obtenir l'effet escompté.
+ rayons dans la direction de la lumière.
+ La proportion de rayons visible pondère le résultat de la BRDF de Phong
+ afin d'obtenir l'effet escompté.
 \end_layout
 
 \begin_layout Standard
@@ -400,7 +400,7 @@ status open
 \align center
 \begin_inset Graphics
 	filename path_tracing_no_indirect_illumination.png
-	scale 45
+	scale 30
 
 \end_inset
 
@@ -440,11 +440,11 @@ Ambient Occlusion
 L'ambient occlusion (ici sur un modèle rendu sans BRDF de Phong afin de
  mettre en évidence l'apport de l'ambient occlusion) à été réalisé en considéran
 t la demi sphère, d'un rayon de 5% de la taille de la scène 3D, le long
- de la normale avec un nombre 
+ de la normale avec un nombre de rayons 
 \begin_inset Formula $N$
 \end_inset
 
-de rayons.
+.
 \end_layout
 
 \begin_layout Standard
@@ -554,7 +554,18 @@ sideways false
 status open
 
 \begin_layout Plain Layout
-//TODO add Taurus in the box scene
+\align center
+\begin_inset Graphics
+	filename taurus1024:2b.png
+	scale 50
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
 \end_layout
 
 \begin_layout Plain Layout
@@ -589,7 +600,18 @@ sideways false
 status open
 
 \begin_layout Plain Layout
-//TODO add RAM army
+\align center
+\begin_inset Graphics
+	filename bonus2.png
+	scale 50
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
 \end_layout
 
 \begin_layout Plain Layout
@@ -620,8 +642,17 @@ Armée de béliers
 Éclairage Indirect
 \end_layout
 
+\begin_layout Standard
+Nous avons fait le choix de la méthode pathtracing pour l'éclairage global
+ de la scène.
+\end_layout
+
 \begin_layout Subsection
 Pathtracing
+\end_layout
+
+\begin_layout Standard
+Voici un petit extrait de scènes que nous trouvons élégantes et sympathiques.
 \end_layout
 
 \begin_layout Standard
@@ -649,7 +680,49 @@ status open
 \begin_inset Caption
 
 \begin_layout Plain Layout
-Éclairage Global
+Éclairage Global 1
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename 1024rpp:2bounces:20min.png
+	scale 50
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Éclairage Global 2
 \end_layout
 
 \end_inset
@@ -678,8 +751,76 @@ Limites
 \end_layout
 
 \begin_layout Standard
-Ce paragraphe liste certains points qui pourraient être amélioré.
+Sans parler des fonctionnalités quasi-infinies que nous pourrions ajouter
+ au moteur de rendu, ce paragraphe liste certains points qui pourraient
+ être améliorés.
 \end_layout
 
+\begin_layout Itemize
+Kd-tree : 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Actuellement nous utilisons une heuristique naïve pour la construction et
+ la traverse
+\end_layout
+
+\begin_layout Itemize
+Notre condition d'arrêt n'est pas satisfaisante (i.e : s'arrêter lorsqu'un
+ noeud contient un certain nombre de triangles ou moins) et peut provoquer
+ un bug sur la construction de grosses scènes.
+ Le nombre de triangles par noeud doit être réhausser pour palier à ce problème
+ ; ce qui n'est pas idéal !
+\end_layout
+
+\begin_layout Itemize
+Nous avons commencer l'implémentation de SAH (Surface Area Heuristic), mais
+ n'avons pas eu le temps de finir proprement.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Interface graphique
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+La barre de progression du rendu : ne fait pas ce qu'elle est censé faire
+ parce que la classe RayTracer n'est pas un QThread et il faudrait modifier
+ pas mal de choses.
+\end_layout
+
+\begin_layout Itemize
+Il faudrait ajouter plus d'options pertinentes à l'interface Qt.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Chargement de fichier
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Nous ne pouvons charger que des fichiers au format OFF.
+ Il pourrait être intéressant de créer un parseur pour les autres types
+ de fichiers 3D.
+\end_layout
+
+\begin_layout Itemize
+Les primitives des maillages doivent exclusivement être des triangles.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Chargement de la scène
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Le choix de la scène 3D est précompilé.
+\end_layout
+
+\end_deeper
 \end_body
 \end_document
