@@ -17,11 +17,11 @@ int RayTracer::AO_RAY_COUNT = 32;
 int RayTracer::ANTIALIASING_RES = 2;
 
 #define USE_PATH_TRACING_ENGINE 1
-#define INDIRECT_ILLUMINATION 0
+#define INDIRECT_ILLUMINATION 1
 #define NUMBER_OF_BOUNCES 2
-#define SQRT_PATHS_PER_PIXEL 4
+#define SQRT_PATHS_PER_PIXEL 16
 #define USE_LENSE 0
-#define LENSE_SIZE 0.3f
+#define LENSE_SIZE 1.f
 
 RayTracer * RayTracer::getInstance () {
     if (instance == NULL) {

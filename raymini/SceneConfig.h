@@ -15,7 +15,7 @@
  * 
  */
 
-#define TAURUS_IN_THE_BOX
+#define RAM_IN_THE_BOX
 
 void buildObjects(std::vector<Object> & objects, bool HD)
 {
@@ -37,12 +37,8 @@ void buildObjects(std::vector<Object> & objects, bool HD)
         ramMesh.loadOFF ("models/ram_HD.off");
     else
         ramMesh.loadOFF ("models/ram.off");
-    Material ramMatY (1.f, 1.f, 128.f, Vec3Df (1, 0, 0));
-    // Mirror effect
-    Material ramMat (Vec3Df(1.f,1.f,1.f), .7f);
-    Material ramMat2;
-    //ramMat2.setColor (Vec3Df(0,1,0));
-    Object ram (ramMesh, ramMat2);    
+    Material ramMatY (1.f, 1.f, 128.f, Vec3Df (1, .7, .2));
+    Object ram (ramMesh, ramMatY);    
     objects.push_back (ram);
 
 #endif
